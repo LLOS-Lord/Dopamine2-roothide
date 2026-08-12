@@ -721,7 +721,7 @@ int exec_cmd_roothide_spawn(pid_t* pidp, const char* path, const posix_spawn_fil
     if (argv) for (int i = 0; argv[i]; i++) JBLogDebug("\targs[%d] = %s", i, argv[i]);
     if (envp) for (int i = 0; envp[i]; i++) JBLogDebug("\tenvp[%d] = %s", i, envp[i]);
 
-    posix_spawnattr_setflags(attrp, flags | POSIX_SPAWN_START_SUSPENDED);
+    posix_spawnattr_setflags((posix_spawnattr_t *)attrp, flags | POSIX_SPAWN_START_SUSPENDED);
 
     pid_t pid = 0;
     int ret = posix_spawn(&pid, path, fap, attrp, argv, envp);
@@ -771,7 +771,7 @@ int ensure_dyld_trustcache(const char* path)
     }
 
     trustcache_file_v1 *dyldTCFile = NULL;
-    if (trustcache_file_build_from_cdhashes(cdhash, 1, &dyldTCFile) != 0) {
+    if (trustcache_file_build_from_cdhashes(&cdhash, 1, &dyldTCFile) != 0) {
         JBLogError("Failed to build dyld trustcache");
         return -1;
     }

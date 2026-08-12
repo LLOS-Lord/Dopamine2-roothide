@@ -135,7 +135,7 @@ void roothide_launchd_postinit(bool firstLoad)
 		assert(unsandbox("/usr/lib", systemhookFilePath.fileSystemRepresentation) == 0);
 
 		//new "real path"
-		asprintf(&HOOK_DYLIB_PATH, "/usr/lib/systemhook-%016llX.dylib", jbinfo(jbrand));
+		asprintf((char **)&HOOK_DYLIB_PATH, "/usr/lib/systemhook-%016llX.dylib", jbinfo(jbrand));
 	}
 
 	if (__builtin_available(iOS 16.0, *))
@@ -144,7 +144,7 @@ void roothide_launchd_postinit(bool firstLoad)
 		void* __sysctlbyname_orig = NULL;
 		MSHookFunction(&__sysctl, (void *) __sysctl_hook, &__sysctl_orig);
 		MSHookFunction(&__sysctlbyname, (void *) __sysctlbyname_hook, &__sysctlbyname_orig);
-		MSHookFunction(&bind, (void*)new_bind, &orig_bind); //fix network issues on iOS16+
+		MSHookFunction(&bind, (void*)new_bind, (void **)&orig_bind); //fix network issues on iOS16+
 	}
 #ifdef __arm64e__
 	else 
@@ -165,8 +165,8 @@ void roothide_launchd_postinit(bool firstLoad)
 
 	loadAppStoredIdentifiers();
 
-	MSHookFunction(&xpc_dictionary_create_reply, (void*)new_xpc_dictionary_create_reply, &orig_xpc_dictionary_create_reply);
-	MSHookFunction(&xpc_pipe_routine_reply, (void*)new_xpc_pipe_routine_reply, &orig_xpc_pipe_routine_reply);
+	MSHookFunction(&xpc_dictionary_create_reply, (void*)new_xpc_dictionary_create_reply, (void **)&orig_xpc_dictionary_create_reply);
+	MSHookFunction(&xpc_pipe_routine_reply, (void*)new_xpc_pipe_routine_reply, (void **)&orig_xpc_pipe_routine_reply);
 
 	// load jailbreakd after applying hooks
 	assert(initJailbreakd(firstLoad) == 0);
@@ -236,7 +236,7 @@ int roothide_launchd___posix_spawn_posthook(pid_t *restrict pidp, const char *re
 	// on some devices dyldhook may fail due to vm_protect(VM_PROT_READ|VM_PROT_WRITE), 2, (os/kern) protection failure in dsc::__DATA_CONST:__const, 
 	// so we need to disable dyld-in-cache here. (or we can use VM_PROT_READ|VM_PROT_WRITE|VM_PROT_COPY)
 	char **envc = envbuf_mutcopy((const char **)envp);
-	if(envbuf_getenv(envc, "DYLD_INSERT_LIBRARIES")) {
+	if(envbuf_getenv((const char **)envc, "DYLD_INSERT_LIBRARIES")) {
 		envbuf_setenv(&envc, "DYLD_IN_CACHE", "0");
 	}
 
@@ -367,7 +367,7 @@ int roothide_launchd___posix_spawn_prehook(pid_t *restrict pidp, const char *res
 	if (!__builtin_available(iOS 16.0, *))
 	{
 		iOS15Arm64e = true;
-		if(envbuf_getenv(envp, "_SafeMode") || envbuf_getenv(envp, "_MSSafeMode")) {
+		if(envbuf_getenv((const char **)envp, "_SafeMode") || envbuf_getenv((const char **)envp, "_MSSafeMode")) {
 			if(path && isRemovableBundlePath(path) && !hasTrollstoreMarker(path)) {
 				choicyBlocked = true;
 			}
@@ -386,7 +386,7 @@ int roothide_launchd___posix_spawn_prehook(pid_t *restrict pidp, const char *res
 			JBLogDebug("prevent blacklisted app's extension from running: ", path);
 			ret = EPERM;
 		}
-		else if(dyld_patch_enabled() && iOS15Arm64e && roothideBlacklisted && (envbuf_getenv(envp, "ActivePrewarm") || envbuf_getenv(envp, "DYLD_USE_CLOSURES"))) {
+		else if(dyld_patch_enabled() && iOS15Arm64e && roothideBlacklisted && (envbuf_getenv((const char **)envp, "ActivePrewarm") || envbuf_getenv((const char **)envp, "DYLD_USE_CLOSURES"))) {
 			JBLogDebug("prevent blacklisted app from prewarming: ", path);
 			ret = EPERM;
 		}
@@ -409,15 +409,15 @@ int roothide_launchd___posix_spawn_prehook(pid_t *restrict pidp, const char *res
 			volatile pid_t* blacklistedPidp = allocBlacklistProcessId();
 	
 			if(roothideBlacklisted || !dyld_patch_enabled() || !iOS15Arm64e) {
-				ret = __posix_spawn_orig_wrapper(blacklistedPidp, path, desc, argv, envc);
+				ret = __posix_spawn_orig_wrapper((pid_t *)blacklistedPidp, path, desc, argv, envc);
 			} else {
-				ret = roothide_launchd___posix_spawn__spinlock_fix_only(blacklistedPidp, path, desc, argv, envc);
+				ret = roothide_launchd___posix_spawn__spinlock_fix_only((pid_t *)blacklistedPidp, path, desc, argv, envc);
 			}
 	
 			pid_t pid = *blacklistedPidp;
 			if(pidp) *pidp = *blacklistedPidp;
 
-			commitBlacklistProcessId(blacklistedPidp); // will release blacklistedPidp
+			commitBlacklistProcessId((pid_t *)blacklistedPidp); // will release blacklistedPidp
 			blacklistedPidp = NULL;
 
 			envbuf_free(envc);

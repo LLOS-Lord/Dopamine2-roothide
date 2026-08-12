@@ -651,7 +651,7 @@ int proc_patch_dyld_internal(pid_t pid, bool spinlockFixOnly)
     {
         bool iOS15Arm64e = false;
 #ifdef __arm64e__
-        if (!__builtin_available(iOS 16.0, *))
+        if (!@available(iOS 16.0, *))
         {
             iOS15Arm64e = true;
         }

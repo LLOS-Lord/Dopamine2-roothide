@@ -3,15 +3,48 @@
 
 #include <mach-o/dyld.h>
 
+#ifdef SYS_ptrace
+#undef SYS_ptrace
+#endif
 #define SYS_ptrace 0x1A
+#ifdef SYS_execve
+#undef SYS_execve
+#endif
 #define SYS_execve 0x3B
+#ifdef SYS_posix_spawn
+#undef SYS_posix_spawn
+#endif
 #define SYS_posix_spawn 0xF4
+#ifdef SYS_csops
+#undef SYS_csops
+#endif
 #define SYS_csops 0xA9
+#ifdef SYS_csops
+#undef SYS_csops
+#endif
+#ifdef SYS_csops_audittoken
+#undef SYS_csops_audittoken
+#endif
 #define SYS_csops_audittoken 0xAA
+#ifdef SYS_necp_match_policy
+#undef SYS_necp_match_policy
+#endif
 #define SYS_necp_match_policy 0x1CC
+#ifdef SYS_necp_open
+#undef SYS_necp_open
+#endif
 #define SYS_necp_open 0x1F5
+#ifdef SYS_necp_client_action
+#undef SYS_necp_client_action
+#endif
 #define SYS_necp_client_action 0x1F6
+#ifdef SYS_necp_session_open
+#undef SYS_necp_session_open
+#endif
 #define SYS_necp_session_open 0x20A
+#ifdef SYS_necp_session_action
+#undef SYS_necp_session_action
+#endif
 #define SYS_necp_session_action 0x20B
 
 int necp_match_policy(uint8_t *parameters, size_t parameters_size, void *returned_result);
@@ -21,7 +54,13 @@ int necp_session_open(int flags);
 int necp_session_action(int necp_fd, uint32_t action, uint8_t *in_buffer, size_t in_buffer_length, uint8_t *out_buffer, size_t out_buffer_length);
 
 int ptrace(int request, pid_t pid, caddr_t addr, int data);
+#ifdef PT_ATTACH
+#undef PT_ATTACH
+#endif
 #define PT_ATTACH       10      /* trace some running process */
+#ifdef PT_ATTACH
+#undef PT_ATTACH
+#endif
 #define PT_ATTACHEXC    14      /* attach to running process with signal exception */
 
 #define POSIX_SPAWN_PROC_TYPE_DRIVER 0x700

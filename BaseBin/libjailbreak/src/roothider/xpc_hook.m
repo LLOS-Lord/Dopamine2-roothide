@@ -50,9 +50,9 @@ int new_xpc_pipe_routine_reply(xpc_object_t reply)
 			/*
 			if(subsystem==2 && routine==708)
 			{
-				volatile const char* name = xpc_dictionary_get_string(original, "name");
+				const char* name = xpc_dictionary_get_string(original, "name");
 
-				volatile int error = xpc_dictionary_get_int64(reply, "error");
+				int error = xpc_dictionary_get_int64(reply, "error");
 
 				if(error == 1)
 				{
@@ -61,11 +61,11 @@ int new_xpc_pipe_routine_reply(xpc_object_t reply)
 			}
 			else if(subsystem==6 && routine==301)
 			{
-				volatile int pid = xpc_dictionary_get_int64(original, "pid");
-				volatile uint64_t outgsk = xpc_dictionary_get_uint64(original, "outgsk");
+				int pid = xpc_dictionary_get_int64(original, "pid");
+				uint64_t outgsk = xpc_dictionary_get_uint64(original, "outgsk");
 
-				volatile int error = xpc_dictionary_get_int64(reply, "error");
-				volatile xpc_object_t out = xpc_dictionary_get_value(reply, "out");
+				int error = xpc_dictionary_get_int64(reply, "error");
+				xpc_object_t out = xpc_dictionary_get_value(reply, "out");
 
 				//fake WebContent Instance
 
@@ -87,17 +87,17 @@ int new_xpc_pipe_routine_reply(xpc_object_t reply)
 			else //*/
 			if (subsystem == 3 && routine == 829)
 			{
-				volatile int error = xpc_dictionary_get_int64(reply, "error");
-				volatile const char *name = xpc_dictionary_get_string(reply, "name");
-				volatile const char *bundle_identifier = xpc_dictionary_get_string(reply, "bundle_identifier");
+				int error = xpc_dictionary_get_int64(reply, "error");
+				const char *name = xpc_dictionary_get_string(reply, "name");
+				const char *bundle_identifier = xpc_dictionary_get_string(reply, "bundle_identifier");
 
-				volatile const char *bundle = bundle_identifier ? bundle_identifier : (name ? name : "");
+				const char *bundle = bundle_identifier ? bundle_identifier : (name ? name : "");
 
-				volatile char client_identifier[255] = {0};
+				char client_identifier[255] = {0};
 				proc_get_identifier(audit_token_to_pid(clientToken), client_identifier);
 
-				volatile bool isSafeBundleIdentifier = is_safe_bundle_identifier(bundle);
-				volatile bool isSelfBundleIdentifier = client_identifier[0] && string_has_prefix(bundle, client_identifier);
+				bool isSafeBundleIdentifier = is_safe_bundle_identifier(bundle);
+				bool isSelfBundleIdentifier = client_identifier[0] && string_has_prefix(bundle, client_identifier);
 
 				if (error==0 && !isSelfBundleIdentifier && !isSafeBundleIdentifier)
 				{
@@ -200,8 +200,8 @@ void roothide_handle_xpc_msg(xpc_object_t xmsg)
 		uint64_t subsystem = xpc_dictionary_get_uint64(xmsg, "subsystem");
 		if (subsystem == 2 && routine == 708)
 		{
-			volatile char *bundle = NULL;
-			volatile const char *name = xpc_dictionary_get_string(xmsg, "name");
+			char *bundle = NULL;
+			const char *name = xpc_dictionary_get_string(xmsg, "name");
 			if (name) {
 				if (string_has_prefix(name, "UIKitApplication:")) {
 					bundle = name + sizeof("UIKitApplication:") - 1;
@@ -218,13 +218,13 @@ void roothide_handle_xpc_msg(xpc_object_t xmsg)
 				bundle = strdup("");
 			}
 
-			volatile int clientPid = audit_token_to_pid(clientToken);
+			int clientPid = audit_token_to_pid(clientToken);
 
-			volatile char client_identifier[255] = {0};
+			char client_identifier[255] = {0};
 			proc_get_identifier(clientPid, client_identifier);
 
-			volatile bool isSafeBundleIdentifier = is_safe_bundle_identifier(bundle);
-			volatile bool isSelfBundleIdentifier = client_identifier[0] && string_has_prefix(bundle, client_identifier);
+			bool isSafeBundleIdentifier = is_safe_bundle_identifier(bundle);
+			bool isSelfBundleIdentifier = client_identifier[0] && string_has_prefix(bundle, client_identifier);
 
 			if (name && !isSelfBundleIdentifier && !isSafeBundleIdentifier)
 			{
@@ -236,21 +236,21 @@ void roothide_handle_xpc_msg(xpc_object_t xmsg)
 		}
 		else if (subsystem == 6 && routine == 301)
 		{
-			volatile int pid = xpc_dictionary_get_int64(xmsg, "pid");
-			volatile int clientPid = audit_token_to_pid(clientToken);
+			int pid = xpc_dictionary_get_int64(xmsg, "pid");
+			int clientPid = audit_token_to_pid(clientToken);
 
-			volatile char path[PATH_MAX] = {0};
+			char path[PATH_MAX] = {0};
 			proc_get_path(pid, path);
 
-			volatile char proc_identifier[255] = {0};
+			char proc_identifier[255] = {0};
 			proc_get_identifier(pid, proc_identifier);
 
-			volatile char client_identifier[255] = {0};
+			char client_identifier[255] = {0};
 			proc_get_identifier(clientPid, client_identifier);
 
-			volatile bool isJailbrokenPath = !path[0] || hasTrollstoreMarker(path) || isSubPathOf(path, JBROOT_PATH("/"));
-			volatile bool isSafeBundleIdentifier = proc_identifier[0] && is_safe_bundle_identifier(proc_identifier);
-			volatile bool isSelfBundleIdentifier = proc_identifier[0] && client_identifier[0] && string_has_prefix(proc_identifier, client_identifier);
+			bool isJailbrokenPath = !path[0] || hasTrollstoreMarker(path) || isSubPathOf(path, JBROOT_PATH("/"));
+			bool isSafeBundleIdentifier = proc_identifier[0] && is_safe_bundle_identifier(proc_identifier);
+			bool isSelfBundleIdentifier = proc_identifier[0] && client_identifier[0] && string_has_prefix(proc_identifier, client_identifier);
 
 			if (pid > 0 && pid != clientPid && (isJailbrokenPath || (!isSafeBundleIdentifier && !isSelfBundleIdentifier)))
 			{

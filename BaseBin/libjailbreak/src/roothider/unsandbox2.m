@@ -104,8 +104,8 @@ static int make_tail_file()
 	uint64_t tailncp = (uint64_t)tailvnode.v_nclinks.lh_first;
     printf("tailncp=%llx\n", tailncp);
 	kreadbuf(tailncp, &tailnc, sizeof(tailnc));
-    printf("tailnc.nc_entry.tqe_prev=%llx\n", tailnc.nc_entry.tqe_prev);
-    printf("tailnc.nc_entry.tqe_next=%llx\n", tailnc.nc_entry.tqe_next);
+    printf("tailnc.nc_entry.tqe_prev=%llx\n", (unsigned long long)tailnc.nc_entry.tqe_prev);
+    printf("tailnc.nc_entry.tqe_next=%llx\n", (unsigned long long)tailnc.nc_entry.tqe_next);
     return 0;
 }
 
