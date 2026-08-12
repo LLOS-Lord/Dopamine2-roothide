@@ -15,8 +15,8 @@
 #undef SYS_posix_spawn
 #endif
 #define SYS_posix_spawn 0xF4
-#ifdef SYS_csops
-#undef SYS_csops
+#ifdef SYS_csops_audittoken
+#undef SYS_csops_audittoken
 #endif
 #define SYS_csops 0xA9
 #ifdef SYS_csops
@@ -54,8 +54,8 @@ int necp_session_open(int flags);
 int necp_session_action(int necp_fd, uint32_t action, uint8_t *in_buffer, size_t in_buffer_length, uint8_t *out_buffer, size_t out_buffer_length);
 
 int ptrace(int request, pid_t pid, caddr_t addr, int data);
-#ifdef PT_ATTACH
-#undef PT_ATTACH
+#ifdef PT_ATTACHEXC
+#undef PT_ATTACHEXC
 #endif
 #define PT_ATTACH       10      /* trace some running process */
 #ifdef PT_ATTACH
