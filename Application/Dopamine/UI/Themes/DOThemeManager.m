@@ -25,13 +25,30 @@
     self = [super init];
     if (self) {
         self.themes = [[NSMutableArray alloc] init];
-        
+
         NSString *path = [[NSBundle mainBundle] pathForResource:@"Themes" ofType:@"plist"];
         NSArray *themes = [NSArray arrayWithContentsOfFile:path];
 
-        for (NSDictionary *theme in themes) {
+        for (id theme in themes) {
+            if (![theme isKindOfClass:[NSDictionary class]]) {
+                continue;
+            }
+
             DOTheme *newTheme = [[DOTheme alloc] initWithDictionary:theme];
             [((NSMutableArray *)self.themes) addObject:newTheme];
+        }
+
+        if (self.themes.count == 0) {
+            DOTheme *fallbackTheme = [[DOTheme alloc] initWithDictionary:@{
+                @"key": @"default",
+                @"name": @"Dopamine",
+                @"image": @"Background_Green",
+                @"actionMenuColor": @"723f3f3f",
+                @"windowColor": @"994c4c4c",
+                @"blur": @18,
+                @"titleShadow": @NO
+            }];
+            [((NSMutableArray *)self.themes) addObject:fallbackTheme];
         }
 
     }
@@ -69,7 +86,7 @@
 - (DOTheme*)enabledTheme
 {
     id value = [[DOPreferenceManager sharedManager] preferenceValueForKey:@"theme"];
-    if (!value)
+    if (![value isKindOfClass:[NSString class]])
         return self.themes.firstObject;
     return [self getThemeForKey:value] ?: self.themes.firstObject;
 }
@@ -78,10 +95,15 @@
 + (UIColor*)menuColorWithAlpha:(float)alpha
 {
     DOTheme *theme = [[DOThemeManager sharedInstance] enabledTheme];
-    
+
     UIColor *color = theme.actionMenuColor;
-    CGFloat red, green, blue, currentAlpha;
-    [color getRed:&red green:&green blue:&blue alpha:&currentAlpha];
+    CGFloat red = 0, green = 0, blue = 0, currentAlpha = 0;
+    if (![color getRed:&red green:&green blue:&blue alpha:&currentAlpha]) {
+        color = [UIColor colorWithWhite:0 alpha:0.45];
+        [color getWhite:&red alpha:&currentAlpha];
+        green = red;
+        blue = red;
+    }
     return [UIColor colorWithRed:red green:green blue:blue alpha:currentAlpha * alpha];
 }
 

@@ -32,6 +32,10 @@
 
 - (UIColor*)colorFromHexString:(NSString*)hexString
 {
+    if (![hexString isKindOfClass:[NSString class]] || hexString.length == 0) {
+        return [UIColor clearColor];
+    }
+
     unsigned int hexInt = 0;
     NSScanner *scanner = [NSScanner scannerWithString:hexString];
     [scanner scanHexInt:&hexInt];
@@ -40,23 +44,48 @@
 
 - (UIImage *)image
 {
-    if (_image == nil)
-        _image = [[UIImage imageNamed:self.imageName] imageWithBlur:self.blur];
+    if (_image == nil) {
+        NSString *assetName = self.imageName;
+        if (assetName.pathExtension.length > 0) {
+            assetName = [assetName stringByDeletingPathExtension];
+        }
+
+        UIImage *baseImage = assetName.length > 0 ? [UIImage imageNamed:assetName] : nil;
+        if (!baseImage && ![assetName isEqualToString:@"Background_Green"]) {
+            baseImage = [UIImage imageNamed:@"Background_Green"];
+        }
+
+        if (baseImage && self.blur > 0) {
+            _image = [baseImage imageWithBlur:self.blur] ?: baseImage;
+        }
+        else {
+            _image = baseImage;
+        }
+    }
+
     return _image;
 }
 
 - (UIImage *)generateBootLogo
 {
     UIImage *backgroundImage = [self image];
+    if (!backgroundImage) {
+        return [UIImage imageNamed:@"DopamineLogo"];
+    }
+
     CGSize canvasSize = backgroundImage.size;
 
     UIImage *overlayImage = [UIImage imageNamed:@"DopamineLogo"];
+    if (!overlayImage) {
+        return backgroundImage;
+    }
 
     CGSize overlaySize = CGSizeMake(350, 350);
     CGPoint overlayOrigin = CGPointMake((canvasSize.width - overlaySize.width) / 2.0,
                                         (canvasSize.height - overlaySize.height) / 2.0);
 
-    UIGraphicsBeginImageContextWithOptions(canvasSize, NO, backgroundImage.scale);
+    CGFloat scale = backgroundImage.scale > 0 ? backgroundImage.scale : [UIScreen mainScreen].scale;
+    UIGraphicsBeginImageContextWithOptions(canvasSize, NO, scale);
 
     [backgroundImage drawInRect:CGRectMake(0, 0, canvasSize.width, canvasSize.height)];
 

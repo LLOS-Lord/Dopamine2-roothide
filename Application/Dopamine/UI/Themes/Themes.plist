@@ -8,7 +8,7 @@
 		<key>name</key>
 		<string>Dopamine</string>
 		<key>image</key>
-		<string>Background_Green.jpg</string>
+		<string>Background_Green</string>
 		<key>actionMenuColor</key>
 		<string>723f3f3f</string>
 		<key>windowColor</key>
@@ -26,7 +26,7 @@
 		<key>name</key>
 		<string>ElleKit</string>
 		<key>image</key>
-		<string>Background_ElleKit.jpg</string>
+		<string>Background_ElleKit</string>
 		<key>actionMenuColor</key>
 		<string>3F610C71</string>
 		<key>windowColor</key>
@@ -44,7 +44,7 @@
 		<key>name</key>
 		<string>Deep Blue Sky</string>
 		<key>image</key>
-		<string>Background_Blue.jpg</string>
+		<string>Background_Blue</string>
 		<key>actionMenuColor</key>
 		<string>3F0C2571</string>
 		<key>windowColor</key>
@@ -62,7 +62,7 @@
 		<key>name</key>
 		<string>Blood Sky</string>
 		<key>image</key>
-		<string>Background_Red.jpg</string>
+		<string>Background_Red</string>
 		<key>actionMenuColor</key>
 		<string>5F560808</string>
 		<key>windowColor</key>
@@ -80,7 +80,7 @@
 		<key>name</key>
 		<string>Desert Dusk</string>
 		<key>image</key>
-		<string>Background_Purple.jpg</string>
+		<string>Background_Purple</string>
 		<key>actionMenuColor</key>
 		<string>4F150C71</string>
 		<key>windowColor</key>
