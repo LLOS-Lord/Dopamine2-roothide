@@ -44,7 +44,8 @@
     [self.view addSubview:stackView];
 
 
-    int statusBarHeight = fmax(15, [[UIApplication sharedApplication] keyWindow].safeAreaInsets.top - 20);
+    UIWindow *keyWindow = [[UIApplication sharedApplication] keyWindow];
+    int statusBarHeight = fmax(15, keyWindow ? keyWindow.safeAreaInsets.top - 20 : 0);
 
     [NSLayoutConstraint activateConstraints:@[
         [stackView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:statusBarHeight],//-35

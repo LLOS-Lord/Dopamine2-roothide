@@ -49,6 +49,7 @@ xpc_object_t jbserver_xpc_send_dict(xpc_object_t xdict)
 	else {
 		// Else, communicate with launchd
 		struct xpc_global_data* globalData = os_alloc_once(OS_ALLOC_ONCE_KEY_LIBXPC, 472, NULL);
+		if (!globalData) return NULL;
 		if (!globalData->xpc_bootstrap_pipe) {
 			mach_port_t launchdPort = jbclient_mach_get_launchd_port();
 			if (launchdPort != MACH_PORT_NULL) {
