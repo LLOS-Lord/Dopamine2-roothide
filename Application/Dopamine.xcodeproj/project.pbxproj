@@ -59,9 +59,9 @@
 		8C029F6B2B4E320E0071DE58 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C029F6A2B4E320E0071DE58 /* libz.tbd */; };
 		8C05B00F2B631532001A7CF3 /* libjailbreak.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CDD08422B4F6DD800A32B61 /* libjailbreak.dylib */; platformFilter = ios; };
 		8C05B0142B6315DB001A7CF3 /* badRecovery.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C05B0132B6315DB001A7CF3 /* badRecovery.m */; };
-		8C05B0152B631738001A7CF3 /* badRecovery.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8C05B0032B63152B001A7CF3 /* badRecovery.framework */,
-				A1B2C3D4E5F6789012345678 /* DarkSword.framework */,
-				B1C2D3E4F5A6789012345678 /* ClearSword.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		8C05B0152B631738001A7CF3 /* badRecovery.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8C05B0032B63152B001A7CF3 /* badRecovery.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		A1B2C3D4E5F6789012345686 /* DarkSword.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6789012345678 /* DarkSword.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		B1C2D3E4F5A6789012345686 /* ClearSword.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B1C2D3E4F5A6789012345678 /* ClearSword.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		8C05B0182B632925001A7CF3 /* badRecovery.s in Sources */ = {isa = PBXBuildFile; fileRef = 8C05B0172B632925001A7CF3 /* badRecovery.s */; };
 		8C05C59F2B75A1770097A931 /* bootstrap_1800.tar.zst in Resources */ = {isa = PBXBuildFile; fileRef = 8C05C59E2B759F8A0097A931 /* bootstrap_1800.tar.zst */; };
 		8C05C5A02B75A17A0097A931 /* bootstrap_1900.tar.zst in Resources */ = {isa = PBXBuildFile; fileRef = 8C05C59D2B759F8A0097A931 /* bootstrap_1900.tar.zst */; };
@@ -274,6 +274,8 @@
 				8C2B1FF42B53492B009BA166 /* dmaFail.framework in Embed Frameworks */,
 				8C5FA8EB2BDD36BF008C246F /* multicast_bytecopy.framework in Embed Frameworks */,
 				8C05B0152B631738001A7CF3 /* badRecovery.framework in Embed Frameworks */,
+				A1B2C3D4E5F6789012345686 /* DarkSword.framework in Embed Frameworks */,
+				B1C2D3E4F5A6789012345686 /* ClearSword.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -396,9 +398,9 @@
 		8C029F652B4E2E7D0071DE58 /* libcompression.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libcompression.tbd; path = usr/lib/libcompression.tbd; sourceTree = SDKROOT; };
 		8C029F672B4E31D50071DE58 /* libMobileGestalt.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libMobileGestalt.tbd; path = usr/lib/libMobileGestalt.tbd; sourceTree = SDKROOT; };
 		8C029F6A2B4E320E0071DE58 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
-		8C05B0032B63152B001A7CF3 /* badRecovery.framework */,
-				A1B2C3D4E5F6789012345678 /* DarkSword.framework */,
-				B1C2D3E4F5A6789012345678 /* ClearSword.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = badRecovery.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8C05B0032B63152B001A7CF3 /* badRecovery.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = badRecovery.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1B2C3D4E5F6789012345678 /* DarkSword.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DarkSword.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B1C2D3E4F5A6789012345678 /* ClearSword.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ClearSword.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C05B0132B6315DB001A7CF3 /* badRecovery.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = badRecovery.m; sourceTree = "<group>"; };
 		8C05B0162B6319D7001A7CF3 /* badRecovery.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = badRecovery.h; sourceTree = "<group>"; };
 		8C05B0172B632925001A7CF3 /* badRecovery.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = badRecovery.s; sourceTree = "<group>"; };
@@ -1327,9 +1329,7 @@
 			);
 			name = badRecovery;
 			productName = badRecovery;
-			productReference = 8C05B0032B63152B001A7CF3 /* badRecovery.framework */,
-				A1B2C3D4E5F6789012345678 /* DarkSword.framework */,
-				B1C2D3E4F5A6789012345678 /* ClearSword.framework */;
+			productReference = 8C05B0032B63152B001A7CF3 /* badRecovery.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		8C2B1FDE2B532374009BA166 /* dmaFail */ = {
