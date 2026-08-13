@@ -52,15 +52,10 @@ int reboot3(uint64_t flags, ...);
         _bootstrapNeedsMigration = NO;
         _bootstrapper = [[DOBootstrapper alloc] init];
         if ([self isJailbroken]) {
-            char *jbRoot = jbclient_get_jbroot();
-            gSystemInfo.jailbreakInfo.rootPath = strdup(jbRoot ? jbRoot : "");
+            gSystemInfo.jailbreakInfo.rootPath = strdup(jbclient_get_jbroot() ?: "");
         }
         else if ([self isInstalledThroughTrollStore]) {
-            @try {
-                [self locateJailbreakRoot];
-            } @catch (NSException *e) {
-                NSLog(@"[Dopamine] locateJailbreakRoot exception: %@", e);
-            }
+            [self locateJailbreakRoot];
         }
     }
     return self;
@@ -95,9 +90,8 @@ int reboot3(uint64_t flags, ...);
 {
     if (!_bootManifestHash) {
         io_registry_entry_t registryEntry = IORegistryEntryFromPath(kIOMainPortDefault, "IODeviceTree:/chosen");
-        if (registryEntry != MACH_PORT_NULL) {
-            _bootManifestHash = (__bridge_transfer NSData *)IORegistryEntryCreateCFProperty(registryEntry, CFSTR("boot-manifest-hash"), NULL, 0);
-            IOObjectRelease(registryEntry);
+        if (registryEntry) {
+            _bootManifestHash = (__bridge NSData *)IORegistryEntryCreateCFProperty(registryEntry, CFSTR("boot-manifest-hash"), NULL, 0);
         }
     }
     return _bootManifestHash;
@@ -113,7 +107,6 @@ int reboot3(uint64_t flags, ...);
 {
     if (!gSystemInfo.jailbreakInfo.rootPath) {
         NSString *activePrebootPath = [self activePrebootPath];
-        if (!activePrebootPath) return;
         
         NSString *randomizedJailbreakPath;
         

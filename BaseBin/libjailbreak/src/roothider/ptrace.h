@@ -83,16 +83,10 @@ enum {
 #define PT_CONTINUE     7       /* continue the child */
 #define PT_KILL         8       /* kill the child process */
 #define PT_STEP         9       /* single step the child */
-#ifdef PT_ATTACH
-#undef PT_ATTACH
-#endif
 #define PT_ATTACH       ePtAttachDeprecated     /* trace some running process */
 #define PT_DETACH       11      /* stop tracing a process */
 #define PT_SIGEXC       12      /* signals as exceptions for current_proc */
 #define PT_THUPDATE     13      /* signal for thread# */
-#ifdef PT_ATTACH
-#undef PT_ATTACH
-#endif
 #define PT_ATTACHEXC    14      /* attach to running process with signal exception */
 
 #define PT_FORCEQUOTA   30      /* Enforce quota for root */

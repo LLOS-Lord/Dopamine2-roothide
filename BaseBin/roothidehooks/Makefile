@@ -13,8 +13,6 @@ roothidehooks_CFLAGS = -Werror -fobjc-arc -I../.include
 roothidehooks_LDFLAGS = -rpath @loader_path/.jbroot/Library/Frameworks -rpath @loader_path/fallback -L../libjailbreak -ljailbreak
 roothidehooks_INSTALL_PATH = /basebin
 
-lsd.x_CFLAGS = -fno-objc-arc #lsd using mrc
-
 include $(THEOS_MAKE_PATH)/tweak.mk
 
 after-roothidehooks-all::

@@ -128,7 +128,7 @@ int IOSurface_map(uint64_t pa, uint64_t size, void **uaddr)
 
 /*********************** roothide specific **************************************/
     vm_prot_t cur_prot, max_prot;
-    kern_return_t kr = vm_remap(mach_task_self(), (vm_address_t *)uaddr, size, 0, VM_FLAGS_ANYWHERE, mach_task_self(), (vm_address_t)*uaddr, FALSE, &cur_prot, &max_prot, VM_INHERIT_NONE);
+    kern_return_t kr = vm_remap(mach_task_self(), uaddr, size, 0, VM_FLAGS_ANYWHERE, mach_task_self(), (vm_address_t)*uaddr, FALSE, &cur_prot, &max_prot, VM_INHERIT_NONE);
     assert (kr == KERN_SUCCESS);
 /*********************************************************************************/
 
