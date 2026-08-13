@@ -60,8 +60,6 @@
 		8C05B00F2B631532001A7CF3 /* libjailbreak.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CDD08422B4F6DD800A32B61 /* libjailbreak.dylib */; platformFilter = ios; };
 		8C05B0142B6315DB001A7CF3 /* badRecovery.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C05B0132B6315DB001A7CF3 /* badRecovery.m */; };
 		8C05B0152B631738001A7CF3 /* badRecovery.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8C05B0032B63152B001A7CF3 /* badRecovery.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		A1B2C3D4E5F6789012345686 /* DarkSword.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6789012345678 /* DarkSword.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		B1C2D3E4F5A6789012345686 /* ClearSword.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B1C2D3E4F5A6789012345678 /* ClearSword.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		8C05B0182B632925001A7CF3 /* badRecovery.s in Sources */ = {isa = PBXBuildFile; fileRef = 8C05B0172B632925001A7CF3 /* badRecovery.s */; };
 		8C05C59F2B75A1770097A931 /* bootstrap_1800.tar.zst in Resources */ = {isa = PBXBuildFile; fileRef = 8C05C59E2B759F8A0097A931 /* bootstrap_1800.tar.zst */; };
 		8C05C5A02B75A17A0097A931 /* bootstrap_1900.tar.zst in Resources */ = {isa = PBXBuildFile; fileRef = 8C05C59D2B759F8A0097A931 /* bootstrap_1900.tar.zst */; };
@@ -240,14 +238,28 @@
 			remoteGlobalIDString = 8C5FA8E32BDD36BF008C246F;
 			remoteInfo = multicast_bytecopy;
 		};
-		8CDD07AB2B4F619000A32B61 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8C71980D2ABF0E82003C6658 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8CDD07A62B4F619000A32B61;
-			remoteInfo = kfd;
-		};
-/* End PBXContainerItemProxy section */
+			8CDD07AB2B4F619000A32B61 /* PBXContainerItemProxy */ = {
+				isa = PBXContainerItemProxy;
+				containerPortal = 8C71980D2ABF0E82003C6658 /* Project object */;
+				proxyType = 1;
+				remoteGlobalIDString = 8CDD07A62B4F619000A32B61;
+				remoteInfo = kfd;
+			};
+			A1B2C3D4E5F6789012345688 /* PBXContainerItemProxy */ = {
+				isa = PBXContainerItemProxy;
+				containerPortal = 8C71980D2ABF0E82003C6658 /* Project object */;
+				proxyType = 1;
+				remoteGlobalIDString = A1B2C3D4E5F678901234567C;
+				remoteInfo = DarkSword;
+			};
+			B1C2D3E4F5A6789012345688 /* PBXContainerItemProxy */ = {
+				isa = PBXContainerItemProxy;
+				containerPortal = 8C71980D2ABF0E82003C6658 /* Project object */;
+				proxyType = 1;
+				remoteGlobalIDString = B1C2D3E4F5A678901234567C;
+				remoteInfo = ClearSword;
+			};
+	/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		8C029F5C2B4E21F50071DE58 /* Embed Libraries */ = {
@@ -399,8 +411,6 @@
 		8C029F672B4E31D50071DE58 /* libMobileGestalt.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libMobileGestalt.tbd; path = usr/lib/libMobileGestalt.tbd; sourceTree = SDKROOT; };
 		8C029F6A2B4E320E0071DE58 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		8C05B0032B63152B001A7CF3 /* badRecovery.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = badRecovery.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		A1B2C3D4E5F6789012345678 /* DarkSword.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DarkSword.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		B1C2D3E4F5A6789012345678 /* ClearSword.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ClearSword.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C05B0132B6315DB001A7CF3 /* badRecovery.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = badRecovery.m; sourceTree = "<group>"; };
 		8C05B0162B6319D7001A7CF3 /* badRecovery.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = badRecovery.h; sourceTree = "<group>"; };
 		8C05B0172B632925001A7CF3 /* badRecovery.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = badRecovery.s; sourceTree = "<group>"; };
@@ -552,6 +562,8 @@
 		8CDD08432B4F6DD800A32B61 /* libchoma.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libchoma.dylib; path = ../BaseBin/.build/libchoma.dylib; sourceTree = "<group>"; };
 		8CDD08442B4F6DD800A32B61 /* libxpf.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxpf.dylib; path = ../BaseBin/.build/libxpf.dylib; sourceTree = "<group>"; };
 		C075B0CB2B8F2BCE009A26BB /* th */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = th; path = th.lproj/Localizable.strings; sourceTree = "<group>"; };
+		A1B2C3D4E5F678901234568A /* DarkSword Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B1C2D3E4F5A678901234568A /* ClearSword Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1B2C3D4E5F6789012345678 /* DarkSword.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DarkSword.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1B2C3D4E5F6789012345679 /* DarkSword.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DarkSword.h; sourceTree = "<group>"; };
 		A1B2C3D4E5F678901234567A /* DarkSword.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DarkSword.m; sourceTree = "<group>"; };
@@ -1103,6 +1115,8 @@
 				8C2B1FEE2B5324DE009BA166 /* dmaFail */,
 				8C5FA8D52BDD36B6008C246F /* weightBufs */,
 				8C5FA8E52BDD36BF008C246F /* multicast_bytecopy */,
+				A1B2C3D4E5F678901234567B /* DarkSword */,
+				B1C2D3E4F5A678901234567B /* ClearSword */,
 			);
 			path = Exploits;
 			sourceTree = "<group>";
@@ -1181,7 +1195,7 @@
 			children = (
 				A1B2C3D4E5F6789012345679 /* DarkSword.h */,
 				A1B2C3D4E5F678901234567A /* DarkSword.m */,
-				8C2B1FC72B52FB56009BA166 /* Info.plist */,
+				A1B2C3D4E5F678901234568A /* DarkSword Info.plist */,
 			);
 			path = DarkSword;
 			sourceTree = "<group>";
@@ -1191,7 +1205,7 @@
 			children = (
 				B1C2D3E4F5A6789012345679 /* ClearSword.h */,
 				B1C2D3E4F5A678901234567A /* ClearSword.m */,
-				8C2B1FC72B52FB56009BA166 /* Info.plist */,
+				B1C2D3E4F5A678901234568A /* ClearSword Info.plist */,
 			);
 			path = ClearSword;
 			sourceTree = "<group>";
@@ -1370,11 +1384,7 @@
 			productReference = 8C5FA8D42BDD36B6008C246F /* weightBufs.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		8C5FA8E32BDD36BF008C246F /* multicast_bytecopy */,
-				A1B2C3D4E5F678901234567C /* DarkSword */,
-				B1C2D3E4F5A678901234567C /* ClearSword */,
-				A1B2C3D4E5F678901234567B /* DarkSword */,
-				B1C2D3E4F5A678901234567B /* ClearSword */ = {
+		8C5FA8E32BDD36BF008C246F /* multicast_bytecopy */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8C5FA8EC2BDD36BF008C246F /* Build configuration list for PBXNativeTarget "multicast_bytecopy" */;
 			buildPhases = (
@@ -1411,8 +1421,8 @@
 				8C05B0082B63152B001A7CF3 /* PBXTargetDependency */,
 				8C5FA8D92BDD36B6008C246F /* PBXTargetDependency */,
 				8C5FA8E92BDD36BF008C246F /* PBXTargetDependency */,
-				A1B2C3D4E5F678901234567C /* PBXTargetDependency */,
-				B1C2D3E4F5A678901234567C /* PBXTargetDependency */,
+				A1B2C3D4E5F6789012345689 /* PBXTargetDependency */,
+				B1C2D3E4F5A6789012345689 /* PBXTargetDependency */,
 			);
 			name = Dopamine;
 			packageProductDependencies = (
@@ -1503,9 +1513,16 @@
 					8C7198142ABF0E82003C6658 = {
 						CreatedOnToolsVersion = 15.0;
 					};
-					8CDD07A62B4F619000A32B61 = {
-						CreatedOnToolsVersion = 15.1;
-					};
+									8CDD07A62B4F619000A32B61 = {
+					CreatedOnToolsVersion = 15.1;
+				};
+				A1B2C3D4E5F678901234567C = {
+					CreatedOnToolsVersion = 15.4;
+				};
+				B1C2D3E4F5A678901234567C = {
+					CreatedOnToolsVersion = 15.4;
+				};
+
 				};
 			};
 			buildConfigurationList = 8C7198102ABF0E82003C6658 /* Build configuration list for PBXProject "Dopamine" */;
@@ -1934,32 +1951,27 @@
 			target = 8C5FA8D32BDD36B6008C246F /* weightBufs */;
 			targetProxy = 8C5FA8D82BDD36B6008C246F /* PBXContainerItemProxy */;
 		};
-		8C5FA8E92BDD36BF008C246F /* PBXTargetDependency */,
-				A1B2C3D4E5F678901234567C /* PBXTargetDependency */,
-				B1C2D3E4F5A678901234567C /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8C5FA8E32BDD36BF008C246F /* multicast_bytecopy */,
-				A1B2C3D4E5F678901234567C /* DarkSword */,
-				B1C2D3E4F5A678901234567C /* ClearSword */,
-				A1B2C3D4E5F678901234567B /* DarkSword */,
-				B1C2D3E4F5A678901234567B /* ClearSword */;
-			targetProxy = 8C5FA8E82BDD36BF008C246F /* PBXContainerItemProxy */;
+			8C5FA8E92BDD36BF008C246F /* PBXTargetDependency */ = {
+				isa = PBXTargetDependency;
+				target = 8C5FA8E32BDD36BF008C246F /* multicast_bytecopy */;
+				targetProxy = 8C5FA8E82BDD36BF008C246F /* PBXContainerItemProxy */;
+			};
+			A1B2C3D4E5F6789012345689 /* PBXTargetDependency */ = {
+				isa = PBXTargetDependency;
+				target = A1B2C3D4E5F678901234567C /* DarkSword */;
+				targetProxy = A1B2C3D4E5F6789012345688 /* PBXContainerItemProxy */;
+			};
+			B1C2D3E4F5A6789012345689 /* PBXTargetDependency */ = {
+				isa = PBXTargetDependency;
+				target = B1C2D3E4F5A678901234567C /* ClearSword */;
+				targetProxy = B1C2D3E4F5A6789012345688 /* PBXContainerItemProxy */;
 		};
 		8CDD07AC2B4F619000A32B61 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 8CDD07A62B4F619000A32B61 /* kfd */;
 			targetProxy = 8CDD07AB2B4F619000A32B61 /* PBXContainerItemProxy */;
 		};
-		A1B2C3D4E5F678901234567C /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = A1B2C3D4E5F678901234567C /* DarkSword */;
-			targetProxy = A1B2C3D4E5F678901234567C /* PBXContainerItemProxy */;
-		};
-		B1C2D3E4F5A678901234567C /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = B1C2D3E4F5A678901234567C /* ClearSword */;
-			targetProxy = B1C2D3E4F5A678901234567C /* PBXContainerItemProxy */;
-		};
+		
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
