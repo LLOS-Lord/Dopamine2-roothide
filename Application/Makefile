@@ -22,10 +22,12 @@ else
 build/Build/Products/Debug-iphoneos/Dopamine.app: FORCE
 	xcodebuild -scheme Dopamine -derivedDataPath build -destination 'generic/platform=iOS' CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO MARKETING_VERSION="$(shell cat ../BaseBin/_external/basebin/.version)"
 endif
-	xcodebuild -target Titan -configuration Debug -derivedDataPath build -destination 'generic/platform=iOS' CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+	xcodebuild -scheme Titan -derivedDataPath build -destination 'generic/platform=iOS' CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+	test -d build/Build/Products/Debug-iphoneos/Titan.framework
 	mkdir -p build/Build/Products/Debug-iphoneos/Dopamine.app/Frameworks
 	rm -rf build/Build/Products/Debug-iphoneos/Dopamine.app/Frameworks/Titan.framework
 	cp -a build/Build/Products/Debug-iphoneos/Titan.framework build/Build/Products/Debug-iphoneos/Dopamine.app/Frameworks/Titan.framework
+	test -f build/Build/Products/Debug-iphoneos/Dopamine.app/Frameworks/Titan.framework/Titan
 	touch build/Build/Products/Debug-iphoneos/Dopamine.app/Dopamine.roothide
 	cp -a Dopamine/Resources/*.deb build/Build/Products/Debug-iphoneos/Dopamine.app/
 # ifeq ($(PALEHIDE), 1)
