@@ -24,6 +24,8 @@
 
 #include "roothider.h"
 
+extern CS_DecodedBlob *csd_superblob_find_best_code_directory(CS_DecodedSuperBlob *decodedSuperblob);
+
 bool macho_is_mappable(MachO *macho)
 {
 	// Determine if there is any case in which the macho could be mapped

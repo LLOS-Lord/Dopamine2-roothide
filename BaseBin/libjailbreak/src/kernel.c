@@ -7,6 +7,18 @@
 #include <dispatch/dispatch.h>
 #include <stdatomic.h>
 
+static void kaccess_mapped(uint64_t kaddr, size_t size, void (^accessor)(void *))
+{
+	if (!kaddr || !size || !accessor) return;
+	void *buffer = calloc(1, size);
+	if (!buffer) return;
+	if (kreadbuf(kaddr, buffer, size) == 0) {
+		accessor(buffer);
+		(void)kwritebuf(kaddr, buffer, size);
+	}
+	free(buffer);
+}
+
 uint64_t proc_find(pid_t pidToFind)
 {
 	__block uint64_t foundProc = 0;
