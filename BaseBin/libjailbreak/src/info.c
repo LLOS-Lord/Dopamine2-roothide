@@ -92,14 +92,14 @@ void jbinfo_initialize_hardcoded_offsets(void)
 		}
 	}
 
-	gSystemInfo.kernelConstant.PVH_TYPE_MASK  = 0x3;
-	gSystemInfo.kernelConstant.PVH_HIGH_FLAGS = 0x7F40000000000000;
+	gSystemInfo.kernelConstant.pvhTypeMask  = 0x3;
+	gSystemInfo.kernelConstant.pvhHighFlags = 0x7F40000000000000;
 
-	gSystemInfo.kernelConstant.VM_PAGE_PACKED_PTR_SHIFT = 6;
-	gSystemInfo.kernelConstant.VM_PAGE_PACKED_PTR_BASE  = 0xFFFFFFE000000000;
+	gSystemInfo.kernelConstant.vmPagePackedPtrShift = 6;
+	gSystemInfo.kernelConstant.vmPagePackedPtrBase  = 0xFFFFFFE000000000;
 
-	gSystemInfo.kernelConstant.TFRO_PLATFORM            = 0x400;
-	gSystemInfo.kernelConstant.TFRO_HARDENED            = 0x0;
+	gSystemInfo.kernelConstant.tfroPlatform            = 0x400;
+	gSystemInfo.kernelConstant.tfroHardened            = 0x0;
 
 	gSystemInfo.kernelStruct.IOSurface.memoryDescriptor = 0x38;
 	gSystemInfo.kernelStruct.IOMachPort.object = 0;
@@ -383,7 +383,7 @@ void jbinfo_initialize_hardcoded_offsets(void)
 
 						if (strcmp(darwinVersion, "22.3.0") >= 0) { // iOS 16.3+
 							gSystemInfo.kernelConstant.smrBase = 2;
-							gSystemInfo.kernelConstant.VM_PAGE_PACKED_PTR_BASE = 0xFFFFFFDC00000000ULL;
+							gSystemInfo.kernelConstant.vmPagePackedPtrBase = 0xFFFFFFDC00000000ULL;
 
 							if (strcmp(darwinVersion, "22.4.0") >= 0) { // iOS 16.4+
 								// proc
@@ -406,7 +406,7 @@ void jbinfo_initialize_hardcoded_offsets(void)
 								// iOS 17+
 								if (strcmp(darwinVersion, "23.0.0") >= 0) {
 									if (hasSPTM) {
-										gSystemInfo.kernelConstant.PVH_HIGH_FLAGS = 0x7400000000000000LL;
+										gSystemInfo.kernelConstant.pvhHighFlags = 0x7400000000000000LL;
 
 										gSystemInfo.kernelStruct.sptm_frame.type           = 0x2;
 										gSystemInfo.kernelStruct.sptm_frame.level          = 0x4;
@@ -460,7 +460,7 @@ void jbinfo_initialize_hardcoded_offsets(void)
 										gSystemInfo.kernelStruct.socket.usecount = 0x24c;
 
 										if (strcmp(darwinVersion, "23.4.0") >= 0) { // iOS 17.4+
-											gSystemInfo.kernelConstant.TFRO_HARDENED = 0x100;
+											gSystemInfo.kernelConstant.tfroHardened = 0x100;
 
 											// IOSurface
 											gSystemInfo.kernelStruct.IOSurface.memoryDescriptor = 0x30;
@@ -469,7 +469,7 @@ void jbinfo_initialize_hardcoded_offsets(void)
 											gSystemInfo.kernelStruct.socket.proto    = 0x20;
 											gSystemInfo.kernelStruct.socket.usecount = 0x254;
 											if (hasSPTM) {
-												gSystemInfo.kernelConstant.PVH_HIGH_FLAGS = 0x7440000000000000LL;
+												gSystemInfo.kernelConstant.pvhHighFlags = 0x7440000000000000LL;
 											}
 
 											// iOS 18+
@@ -480,7 +480,7 @@ void jbinfo_initialize_hardcoded_offsets(void)
 													gSystemInfo.kernelStruct.pmap.type              = 0x94;
 												}
 												else {
-													gSystemInfo.kernelConstant.PVH_HIGH_FLAGS = 0x7F10000000000000LL;
+													gSystemInfo.kernelConstant.pvhHighFlags = 0x7F10000000000000LL;
 												}
 
 												// vm_map
@@ -504,10 +504,10 @@ void jbinfo_initialize_hardcoded_offsets(void)
 													// iOS 18.4+
 													if (strcmp(darwinVersion, "24.4.0") >= 0) {
 														if (hasSPTM) {
-															gSystemInfo.kernelConstant.PVH_HIGH_FLAGS = 0x74C0000000000000LL;
+															gSystemInfo.kernelConstant.pvhHighFlags = 0x74C0000000000000LL;
 														}
 														else {
-															gSystemInfo.kernelConstant.PVH_HIGH_FLAGS = 0x7F90000000000000LL;
+															gSystemInfo.kernelConstant.pvhHighFlags = 0x7F90000000000000LL;
 														}
 
 														// task
@@ -542,8 +542,8 @@ void jbinfo_initialize_hardcoded_offsets(void)
 
 														// iOS 26.0+
 														if (strcmp(darwinVersion, "25.0.0") >= 0) {
-															gSystemInfo.kernelConstant.TFRO_HARDENED = 0x0;
-															gSystemInfo.kernelConstant.TFRO_PLATFORM = 0x80;
+															gSystemInfo.kernelConstant.tfroHardened = 0x0;
+															gSystemInfo.kernelConstant.tfroPlatform = 0x80;
 
 															// socket
 															gSystemInfo.kernelStruct.socket.usecount = 0x23c;
@@ -560,7 +560,7 @@ void jbinfo_initialize_hardcoded_offsets(void)
 																gSystemInfo.kernelStruct.TXMAddressSpace.allowsInvalidCode = 0x30;
 															}
 															else {
-																gSystemInfo.kernelConstant.PVH_HIGH_FLAGS = 0x7FC0000000000000LL;
+																gSystemInfo.kernelConstant.pvhHighFlags = 0x7FC0000000000000LL;
 															}
 
 															// ipc_space
@@ -599,8 +599,8 @@ void jbinfo_initialize_hardcoded_offsets(void)
 
 																// iOS 27.0+
 																if (strcmp(darwinVersion, "27.0.0") >= 0) {
-																	gSystemInfo.kernelConstant.PVH_TYPE_MASK = 0x7;
-																	gSystemInfo.kernelConstant.PVH_HIGH_FLAGS = 0x64C0000000000000;
+																	gSystemInfo.kernelConstant.pvhTypeMask = 0x7;
+																	gSystemInfo.kernelConstant.pvhHighFlags = 0x64C0000000000000;
 
 																	// vm_map
 																	gSystemInfo.kernelStruct.vm_map.hdr   = 0x0;

@@ -31,12 +31,12 @@ struct system_info {
 		uint64_t PT_INDEX_MAX;
 		uint64_t nsysent;
 		uint64_t mach_trap_count;
-		uint64_t PVH_HIGH_FLAGS;
-		uint64_t PVH_TYPE_MASK;
-		uint64_t VM_PAGE_PACKED_PTR_SHIFT;
-		uint64_t VM_PAGE_PACKED_PTR_BASE;
-		uint64_t TFRO_PLATFORM;
-		uint64_t TFRO_HARDENED;
+		uint64_t pvhHighFlags;
+		uint64_t pvhTypeMask;
+		uint64_t vmPagePackedPtrShift;
+		uint64_t vmPagePackedPtrBase;
+		uint64_t tfroPlatform;
+		uint64_t tfroHardened;
 	} kernelConstant;
 
 	struct {
@@ -413,12 +413,12 @@ extern struct system_info gSystemInfo;
 	iterator(ctx, kernelConstant.PT_INDEX_MAX); \
 	iterator(ctx, kernelConstant.nsysent); \
 	iterator(ctx, kernelConstant.mach_trap_count); \
-	iterator(ctx, kernelConstant.PVH_HIGH_FLAGS); \
-	iterator(ctx, kernelConstant.PVH_TYPE_MASK); \
-	iterator(ctx, kernelConstant.VM_PAGE_PACKED_PTR_SHIFT); \
-	iterator(ctx, kernelConstant.VM_PAGE_PACKED_PTR_BASE); \
-	iterator(ctx, kernelConstant.TFRO_PLATFORM); \
-	iterator(ctx, kernelConstant.TFRO_HARDENED);
+	iterator(ctx, kernelConstant.pvhHighFlags); \
+	iterator(ctx, kernelConstant.pvhTypeMask); \
+	iterator(ctx, kernelConstant.vmPagePackedPtrShift); \
+	iterator(ctx, kernelConstant.vmPagePackedPtrBase); \
+	iterator(ctx, kernelConstant.tfroPlatform); \
+	iterator(ctx, kernelConstant.tfroHardened);
 
 	#define JAILBREAK_INFO_ITERATE(ctx, iterator) \
 		iterator(ctx, jailbreakInfo.usesPACBypass); \

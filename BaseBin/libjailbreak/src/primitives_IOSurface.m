@@ -156,8 +156,8 @@ int IOSurface_map(uint64_t pa, uint64_t size, void **uaddr)
 	else {
 		if (kwrite64(ranges, pa) != 0 || kwrite64(ranges + 8, size) != 0) return -1;
 	}
-	if (IOMemoryDescriptor_set_size(desc, size) != 0 ||
-		kwrite64(desc + 0x70, 0) != 0 ||
+	IOMemoryDescriptor_set_size(desc, size);
+	if (kwrite64(desc + 0x70, 0) != 0 ||
 		kwrite64(desc + 0x18, 0) != 0 ||
 		kwrite64(desc + 0x90, 0) != 0) return -1;
 	IOMemoryDescriptor_set_wired(desc, true);

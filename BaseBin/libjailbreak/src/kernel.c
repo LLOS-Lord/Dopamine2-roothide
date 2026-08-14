@@ -168,7 +168,7 @@ uint64_t pa_to_sptm_frame(uint64_t pa)
 
 uint64_t pvh_ptd(uint64_t pvh)
 {
-	return ((kread64(pvh) & PVH_LIST_MASK) | kconstant(PVH_HIGH_FLAGS));
+	return ((kread64(pvh) & PVH_LIST_MASK) | kconstant(pvhHighFlags));
 }
 
 void task_set_memory_ownership_transfer(uint64_t task, bool value)
@@ -351,7 +351,7 @@ void pmap_remove(uint64_t pmap, uint64_t start, uint64_t end)
 static inline uint64_t VM_PAGE_UNPACK_PTR(uint32_t packed)
 {
 	if (packed == 0) return 0;
-	return ((uint64_t)packed << kconstant(VM_PAGE_PACKED_PTR_SHIFT)) + kconstant(VM_PAGE_PACKED_PTR_BASE);
+	return ((uint64_t)packed << kconstant(vmPagePackedPtrShift)) + kconstant(vmPagePackedPtrBase);
 }
 
 uint64_t vm_page_find_canonical_radix(uint64_t pnum)
