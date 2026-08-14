@@ -6,6 +6,9 @@
 #include <sys/syslimits.h>
 
 #define JBLOG_FULL_SYNC 0
+// Keep debug logging cheap by default; enable together with JBLOG_FULL_SYNC
+// only when durable logs are required for crash/bootstrap investigation.
+#define JBLOG_SYNC 0
 #define JBLOG_FORCE_LOG 1
 
 bool JBLogEnabled();

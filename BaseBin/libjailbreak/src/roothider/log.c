@@ -71,8 +71,11 @@ void JBDLogV(const char* path, pid_t pid, uint64_t tid, const char *prefix, cons
         fprintf(logFile, "\n");
 
         fflush(logFile);
+#if JBLOG_SYNC==1
         fsync(fileno(logFile));
+#endif
 #if JBLOG_FULL_SYNC==1
+        fsync(fileno(logFile));
         fcntl(fileno(logFile), F_FULLFSYNC); //slow
 #endif
         fclose(logFile);
