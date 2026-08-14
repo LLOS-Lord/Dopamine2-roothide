@@ -28,6 +28,10 @@ endif
 	rm -rf build/Build/Products/Debug-iphoneos/Dopamine.app/Frameworks/Titan.framework
 	cp -a build/Build/Products/Debug-iphoneos/Titan.framework build/Build/Products/Debug-iphoneos/Dopamine.app/Frameworks/Titan.framework
 	test -f build/Build/Products/Debug-iphoneos/Dopamine.app/Frameworks/Titan.framework/Titan
+	test -f Dopamine/Prebuilt/Frameworks/momentarius.framework/momentarius
+	rm -rf build/Build/Products/Debug-iphoneos/Dopamine.app/Frameworks/momentarius.framework
+	cp -a Dopamine/Prebuilt/Frameworks/momentarius.framework build/Build/Products/Debug-iphoneos/Dopamine.app/Frameworks/momentarius.framework
+	test -f build/Build/Products/Debug-iphoneos/Dopamine.app/Frameworks/momentarius.framework/momentarius
 	touch build/Build/Products/Debug-iphoneos/Dopamine.app/Dopamine.roothide
 	cp -a Dopamine/Resources/*.deb build/Build/Products/Debug-iphoneos/Dopamine.app/
 # ifeq ($(PALEHIDE), 1)
