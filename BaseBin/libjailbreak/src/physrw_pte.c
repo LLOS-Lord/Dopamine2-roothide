@@ -160,6 +160,7 @@ int libjailbreak_physrw_pte_init(bool receivedHandoff, uint64_t asidPtr)
 	}
 	gPrimitives.physreadbuf = physrw_pte_physreadbuf;
 	gPrimitives.physwritebuf = physrw_pte_physwritebuf;
+	gPrimitives.krwMinSafeReadSize = 0;
 	gPrimitives.kreadbuf = NULL;
 	gPrimitives.kwritebuf = NULL;
 

