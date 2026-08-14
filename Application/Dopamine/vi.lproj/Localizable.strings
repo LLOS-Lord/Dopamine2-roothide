@@ -13,6 +13,8 @@
 "Menu_Settings_Title" = "Cài đặt";
 "Menu_Restart_SpringBoard_Title" = "Khởi động lại SpringBoard";
 "Menu_Reboot_Userspace_Title" = "Khởi động lại Userspace";
+"Menu_Reboot_Device_Title" = "Khởi động lại thiết bị";
+"Alert_Reboot_Device_Message" = "Bạn có chắc muốn khởi động lại thiết bị không?";
 "Menu_Credits_Title" = "Tác giả";
 
 // Updating
