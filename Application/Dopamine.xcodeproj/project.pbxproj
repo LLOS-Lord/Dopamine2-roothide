@@ -215,7 +215,11 @@
 			C1EB00000000000000000006 /* surface.c in Sources */ = {isa = PBXBuildFile; fileRef = C1EA00000000000000000006 /* exploit/surface.c */; };
 			C1EB00000000000000000007 /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = C1EA00000000000000000007 /* exploit/utils.c */; };
 
-		C1A2B3C4D5E60718293A0001 /* Titan.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3165CFCF3020A516002737DA /* Titan.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3165D0073020A584002737DA /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CDD08372B4F682500A32B61 /* IOKit.framework */; };
+		3165D0083020A58D002737DA /* libjailbreak.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CDD08422B4F6DD800A32B61 /* libjailbreak.dylib */; platformFilter = ios; };
+		3165CFD53020A516002737DA /* Titan.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3165CFCF3020A516002737DA /* Titan.framework */; };
+	3165CFD63020A516002737DA /* Titan.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3165CFCF3020A516002737DA /* Titan.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+	3165D0093020A58D002737DA /* libjailbreak.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 8CDD08422B4F6DD800A32B61 /* libjailbreak.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -292,7 +296,18 @@
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		8CDD07AE2B4F619000A32B61 /* Embed Frameworks */ = {
+		3165D00A3020A58D002737DA /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				3165D0093020A58D002737DA /* libjailbreak.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+	8CDD07AE2B4F619000A32B61 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
@@ -305,7 +320,7 @@
 				8C05B0152B631738001A7CF3 /* badRecovery.framework in Embed Frameworks */,
 				A1B2C3D4E5F6789012345686 /* DarkSword.framework in Embed Frameworks */,
 				B1C2D3E4F5A6789012345686 /* ClearSword.framework in Embed Frameworks */,
-				C1A2B3C4D5E60718293A0001 /* Titan.framework in Embed Frameworks */,
+				3165CFD63020A516002737DA /* Titan.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -644,6 +659,7 @@
 				8CDD08472B4F6DD800A32B61 /* libxpf.dylib in Frameworks */,
 				8CDD08462B4F6DD800A32B61 /* libchoma.dylib in Frameworks */,
 				8CC139832B53E05300230143 /* IOKit.framework in Frameworks */,
+				3165CFD53020A516002737DA /* Titan.framework in Frameworks */,
 				8C029F682B4E31D50071DE58 /* libMobileGestalt.tbd in Frameworks */,
 				8C46D7252B588973002899DB /* libzstd in Frameworks */,
 				8CDD08412B4F6D8700A32B61 /* libgrabkernel2.a in Frameworks */,
@@ -1605,6 +1621,7 @@
 				3165CFCC3020A516002737DA /* Frameworks */,
 				3165CFCD3020A516002737DA /* Resources */,
 				3165CFDB3020A528002737DA /* ShellScript */,
+				3165D00A3020A58D002737DA /* Embed Libraries */,
 			);
 			buildRules = (
 			);
