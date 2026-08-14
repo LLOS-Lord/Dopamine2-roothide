@@ -9,6 +9,7 @@
 #import "DOEnvironmentManager.h"
 #import "DOExploitManager.h"
 #import "DOUIManager.h"
+#import "DOPreferenceManager.h"
 #import <sys/stat.h>
 #import <compression.h>
 #import <xpf/xpf.h>
@@ -162,7 +163,9 @@ sets[idx] = NULL;
     if (!pacBypass && [DOEnvironmentManager sharedManager].isPACBypassRequired) {
         return [NSError errorWithDomain:JBErrorDomain code:JBErrorCodeFailedExploitation userInfo:@{NSLocalizedDescriptionKey:@"PAC bypass is required but we did not find any"}];
     }
-    if (!pplBypass && [DOEnvironmentManager sharedManager].isPPLBypassRequired) {
+    BOOL hasManualPPLSelection = [[[DOPreferenceManager sharedManager] preferenceValueForKey:@"selectedPPLBypass"] length] > 0;
+    BOOL shouldRunPPLBypass = [DOEnvironmentManager sharedManager].isPPLBypassRequired || hasManualPPLSelection;
+    if (!pplBypass && shouldRunPPLBypass) {
         return [NSError errorWithDomain:JBErrorDomain code:JBErrorCodeFailedExploitation userInfo:@{NSLocalizedDescriptionKey:@"PPL bypass is required but we did not find any"}];
     }
     
@@ -182,7 +185,7 @@ sets[idx] = NULL;
         gSystemInfo.jailbreakInfo.usesPACBypass = true;
     }
 
-    if ([[DOEnvironmentManager sharedManager] isPPLBypassRequired]) {
+    if (shouldRunPPLBypass) {
         [[DOUIManager sharedInstance] sendLog:[NSString stringWithFormat:DOLocalizedString(@"Bypassing PPL (%@)"), pplBypass.name] debug:NO];
         if ([pplBypass load] != 0) {[pacBypass cleanup]; [kernelExploit cleanup]; return [NSError errorWithDomain:JBErrorDomain code:JBErrorCodeFailedLoadingExploit userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"Failed to load PPL bypass: %s", dlerror()]}];};
         if ([pplBypass run] != 0) {[pacBypass cleanup]; [kernelExploit cleanup]; return [NSError errorWithDomain:JBErrorDomain code:JBErrorCodeFailedExploitation userInfo:@{NSLocalizedDescriptionKey:@"Failed to bypass PPL"}];}

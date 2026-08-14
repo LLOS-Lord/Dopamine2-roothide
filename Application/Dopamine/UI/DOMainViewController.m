@@ -384,9 +384,7 @@
         return [[DOEnvironmentManager sharedManager] isJailbroken];
     }
     if ([action.identifier isEqualToString:@"reboot-device"]) {
-        // A full device reboot is also needed before the first jailbreak,
-        // for example to leave another jailbreak's activated state.
-        return YES;
+        return [[DOEnvironmentManager sharedManager] isJailbroken];
     }
     return YES;
 }

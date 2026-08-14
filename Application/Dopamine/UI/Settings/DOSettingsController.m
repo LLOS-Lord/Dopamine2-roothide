@@ -198,7 +198,7 @@
                 [specifiers addObject:kernelExploitSpecifier];
                 
                 BOOL showPACBypass = envManager.isArm64e || _availablePACBypasses.count > 0;
-                BOOL showPPLBypass = envManager.isPPLBypassRequired || _availablePPLBypasses.count > 0;
+                BOOL showPPLBypass = envManager.isPPLBypassRequired || _availablePPLBypasses.count > 0 || NSProcessInfo.processInfo.operatingSystemVersion.majorVersion >= 16;
                 if (showPACBypass) {
                     PSSpecifier *pacBypassSpecifier = [PSSpecifier preferenceSpecifierNamed:DOLocalizedString(@"PAC Bypass") target:self set:defSetter get:defGetter detail:nil cell:PSLinkListCell edit:nil];
                     [pacBypassSpecifier setProperty:@YES forKey:@"enabled"];
