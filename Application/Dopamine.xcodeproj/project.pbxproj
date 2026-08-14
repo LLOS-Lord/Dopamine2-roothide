@@ -214,6 +214,8 @@
 			C1EB00000000000000000005 /* socket.c in Sources */ = {isa = PBXBuildFile; fileRef = C1EA00000000000000000005 /* exploit/socket.c */; };
 			C1EB00000000000000000006 /* surface.c in Sources */ = {isa = PBXBuildFile; fileRef = C1EA00000000000000000006 /* exploit/surface.c */; };
 			C1EB00000000000000000007 /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = C1EA00000000000000000007 /* exploit/utils.c */; };
+
+		C1A2B3C4D5E60718293A0001 /* Titan.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3165CFCF3020A516002737DA /* Titan.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -266,7 +268,15 @@
 				remoteGlobalIDString = B1C2D3E4F5A678901234567C;
 				remoteInfo = ClearSword;
 			};
-	/* End PBXContainerItemProxy section */
+
+		3165CFD33020A516002737DA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8C71980D2ABF0E82003C6658 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3165CFCE3020A516002737DA;
+			remoteInfo = Titan;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		8C029F5C2B4E21F50071DE58 /* Embed Libraries */ = {
@@ -295,6 +305,7 @@
 				8C05B0152B631738001A7CF3 /* badRecovery.framework in Embed Frameworks */,
 				A1B2C3D4E5F6789012345686 /* DarkSword.framework in Embed Frameworks */,
 				B1C2D3E4F5A6789012345686 /* ClearSword.framework in Embed Frameworks */,
+				C1A2B3C4D5E60718293A0001 /* Titan.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -669,6 +680,16 @@
 				8CDD08362B4F682000A32B61 /* IOSurface.framework in Frameworks */,
 				8CC139832B53E05300230143 /* IOKit.framework in Frameworks */,
 				8C4ABEB92B520E7B00B43C9B /* libjailbreak.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+
+		3165CFCC3020A516002737DA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3165D0083020A58D002737DA /* libjailbreak.dylib in Frameworks */,
+				3165D0073020A584002737DA /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1103,6 +1124,7 @@
 				B1C2D3E4F5A6789012345678 /* ClearSword.framework */,
 				8C5FA8D42BDD36B6008C246F /* weightBufs.framework */,
 				8C5FA8E42BDD36BF008C246F /* multicast_bytecopy.framework */,
+				3165CFCF3020A516002737DA /* Titan.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1136,6 +1158,7 @@
 				8C5FA8E52BDD36BF008C246F /* multicast_bytecopy */,
 				A1B2C3D4E5F678901234567B /* DarkSword */,
 				B1C2D3E4F5A678901234567B /* ClearSword */,
+				3165CFDC3020A547002737DA /* Titan */,
 			);
 			path = Exploits;
 			sourceTree = "<group>";
@@ -1234,6 +1257,42 @@
 				B1C2D3E4F5A678901234568A /* ClearSword Info.plist */,
 			);
 			path = ClearSword;
+			sourceTree = "<group>";
+		};
+
+		3165CFDC3020A547002737DA /* Titan */ = {
+			isa = PBXGroup;
+			children = (
+				3165CFDD3020A553002737DA /* exploit */,
+				3165D0003020A579002737DA /* Info.plist */,
+				3165D0013020A579002737DA /* Titan.h */,
+				3165D0023020A579002737DA /* Titan.m */,
+			);
+			path = Titan;
+			sourceTree = "<group>";
+		};
+		3165CFDD3020A553002737DA /* exploit */ = {
+			isa = PBXGroup;
+			children = (
+				3165CFDE3020A565002737DA /* arm64.h */,
+				3165CFDF3020A565002737DA /* gfx.h */,
+				3165CFE03020A565002737DA /* gfx.m */,
+				3165CFE13020A565002737DA /* gfx_patchfinder.h */,
+				3165CFE23020A565002737DA /* gfx_patchfinder.c */,
+				3165CFE33020A565002737DA /* info.h */,
+				3165CFE43020A565002737DA /* info.c */,
+				3165CFE53020A565002737DA /* IOGPUDevice.h */,
+				3165CFE63020A565002737DA /* IOGPUDevice.c */,
+				3165CFE73020A565002737DA /* ipc_port.h */,
+				3165CFE83020A565002737DA /* ipc_port.c */,
+				3165CFE93020A565002737DA /* kernel_patchfinder.h */,
+				3165CFEA3020A565002737DA /* kernel_patchfinder.c */,
+				3165CFEB3020A565002737DA /* mach_vm.h */,
+				3165CFEC3020A565002737DA /* offsets.h */,
+				3165CFED3020A565002737DA /* titan.h */,
+				3165CFEE3020A565002737DA /* titan.m */,
+			);
+			path = exploit;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1350,6 +1409,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+
+		3165CFCA3020A516002737DA /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3165CFF63020A565002737DA /* mach_vm.h in Headers */,
+				3165CFF73020A565002737DA /* gfx_patchfinder.h in Headers */,
+				3165CFF83020A565002737DA /* gfx.h in Headers */,
+				3165CFF93020A565002737DA /* arm64.h in Headers */,
+				3165CFFA3020A565002737DA /* IOGPUDevice.h in Headers */,
+				3165CFFB3020A565002737DA /* ipc_port.h in Headers */,
+				3165CFFC3020A565002737DA /* titan.h in Headers */,
+				3165CFFD3020A565002737DA /* info.h in Headers */,
+				3165D0043020A579002737DA /* Titan.h in Headers */,
+				3165CFFE3020A565002737DA /* kernel_patchfinder.h in Headers */,
+				3165CFFF3020A565002737DA /* offsets.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -1449,6 +1527,7 @@
 				8C5FA8E92BDD36BF008C246F /* PBXTargetDependency */,
 				A1B2C3D4E5F6789012345689 /* PBXTargetDependency */,
 				B1C2D3E4F5A6789012345689 /* PBXTargetDependency */,
+				3165CFD43020A516002737DA /* PBXTargetDependency */,
 			);
 			name = Dopamine;
 			packageProductDependencies = (
@@ -1515,6 +1594,28 @@
 			productReference = B1C2D3E4F5A6789012345678 /* ClearSword.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+
+		3165CFCE3020A516002737DA /* Titan */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3165CFDA3020A516002737DA /* Build configuration list for PBXNativeTarget "Titan" */;
+			buildPhases = (
+				3165CFCA3020A516002737DA /* Headers */,
+				3165CFCB3020A516002737DA /* Sources */,
+				3165CFCC3020A516002737DA /* Frameworks */,
+				3165CFCD3020A516002737DA /* Resources */,
+				3165CFDB3020A528002737DA /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Titan;
+			packageProductDependencies = (
+			);
+			productName = Titan;
+			productReference = 3165CFCF3020A516002737DA /* Titan.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1549,6 +1650,9 @@
 					CreatedOnToolsVersion = 15.4;
 				};
 
+				3165CFCE3020A516002737DA = {
+					CreatedOnToolsVersion = 15.4;
+				};
 				};
 			};
 			buildConfigurationList = 8C7198102ABF0E82003C6658 /* Build configuration list for PBXProject "Dopamine" */;
@@ -1583,6 +1687,7 @@
 				"zh-TW",
 				"zh-CN",
 				th,
+				3165CFCE3020A516002737DA /* Titan */,
 			);
 			mainGroup = 8C71980C2ABF0E82003C6658;
 			packageReferences = (
@@ -1687,6 +1792,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B1C2D3E4F5A6789012345680 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+
+		3165CFCD3020A516002737DA /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1818,6 +1931,24 @@
 			inputPaths = (
 			);
 			name = "Run Script";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "install_name_tool -change \"@loader_path/libjailbreak.dylib\" \"@executable_path/libjailbreak.dylib\" \"$BUILT_PRODUCTS_DIR/$EXECUTABLE_PATH\"\n";
+		};
+
+		3165CFDB3020A528002737DA /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
 			outputFileListPaths = (
 			);
 			outputPaths = (
@@ -1964,6 +2095,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+
+		3165CFCB3020A516002737DA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3165CFEF3020A565002737DA /* ipc_port.c in Sources */,
+				3165CFF03020A565002737DA /* IOGPUDevice.c in Sources */,
+				3165D0033020A579002737DA /* Titan.m in Sources */,
+				3165CFF13020A565002737DA /* gfx.m in Sources */,
+				3165CFF23020A565002737DA /* gfx_patchfinder.c in Sources */,
+				3165CFF33020A565002737DA /* info.c in Sources */,
+				3165CFF43020A565002737DA /* titan.m in Sources */,
+				3165CFF53020A565002737DA /* kernel_patchfinder.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -2003,6 +2150,12 @@
 			targetProxy = 8CDD07AB2B4F619000A32B61 /* PBXContainerItemProxy */;
 		};
 		
+
+		3165CFD43020A516002737DA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3165CFCE3020A516002737DA /* Titan */;
+			targetProxy = 3165CFD33020A516002737DA /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -2730,6 +2883,79 @@
 			};
 			name = Release;
 		};
+
+		3165CFD73020A516002737DA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/Dopamine/Exploits/Titan/Info.plist";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = com.LLOS.Titan;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		3165CFD83020A516002737DA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/Dopamine/Exploits/Titan/Info.plist";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = com.LLOS.Titan;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2810,6 +3036,16 @@
 			buildConfigurations = (
 				B1C2D3E4F5A6789012345683 /* Debug */,
 				B1C2D3E4F5A6789012345684 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+
+		3165CFDA3020A516002737DA /* Build configuration list for PBXNativeTarget "Titan" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3165CFD73020A516002737DA /* Debug */,
+				3165CFD83020A516002737DA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
