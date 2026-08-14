@@ -19,9 +19,11 @@
         [self setDelegate:delegate];
         [self setActions:actions];
         self.backgroundColor = [DOThemeManager menuColorWithAlpha:1.0];
-        self.layer.cornerRadius = 14;
+        self.layer.cornerRadius = 22;
         self.layer.masksToBounds = YES;
         self.layer.cornerCurve = kCACornerCurveContinuous;
+        self.layer.borderWidth = 1.0;
+        self.layer.borderColor = [UIColor colorWithWhite:1.0 alpha:0.10].CGColor;
     }
     return self;
 }

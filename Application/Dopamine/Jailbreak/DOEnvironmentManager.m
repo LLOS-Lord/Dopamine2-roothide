@@ -210,12 +210,33 @@ int reboot3(uint64_t flags, ...);
 
 - (NSString *)versionSupportString
 {
+    cpu_subtype_t cpuFamily = 0;
+    size_t cpuFamilySize = sizeof(cpuFamily);
+    sysctlbyname("hw.cpufamily", &cpuFamily, &cpuFamilySize, NULL, 0);
+
+    BOOL isA12A13 = cpuFamily == CPUFAMILY_ARM_VORTEX_TEMPEST || cpuFamily == CPUFAMILY_ARM_LIGHTNING_THUNDER;
+    BOOL isA14A17 = cpuFamily == CPUFAMILY_ARM_FIRESTORM_ICESTORM ||
+                    cpuFamily == CPUFAMILY_ARM_BLIZZARD_AVALANCHE ||
+                    cpuFamily == CPUFAMILY_ARM_EVEREST_SAWTOOTH ||
+                    cpuFamily == CPUFAMILY_ARM_COLL;
+
+    NSString *systemVersion = [UIDevice currentDevice].systemVersion;
+    NSInteger majorVersion = systemVersion.integerValue;
+
+    if (majorVersion >= 26 && isA12A13) {
+        return @"iOS 26.0–26.0.1 · A12–A13 (thử nghiệm)";
+    }
+    if (majorVersion >= 18 && isA12A13) {
+        return @"iOS 18.0–18.7.1 · A12–A13 (thử nghiệm)";
+    }
+    if (majorVersion >= 17 && isA14A17) {
+        return @"iOS 17.0–17.3.1 · A14–A17 (thử nghiệm)";
+    }
+
     if ([self isArm64e]) {
-        return @"iOS 15.0 - 16.5.1 (arm64e)";
+        return @"iOS 15.0–16.7.16 · arm64e";
     }
-    else {
-        return @"iOS 15.0 - 15.8.6 / 16.0 - 16.6.1 (arm64)";
-    }
+    return @"iOS 15.0–16.7.16 · arm64";
 }
 
 - (BOOL)isInstalledThroughTrollStore

@@ -22,6 +22,7 @@
 {
     DOActionMenuButton *button = [DOActionMenuButton buttonWithConfiguration:[DOGlobalAppearance defaultButtonConfiguration] primaryAction:action];
     [button.titleLabel setAdjustsFontSizeToFitWidth:YES];
+    [button.titleLabel setFont:[UIFont systemFontOfSize:17 weight:UIFontWeightMedium]];
     [button setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
 
     if ([DOGlobalAppearance isRTL])
@@ -60,14 +61,14 @@
     if (bottomSeparator)
     {
         _separator = [[UIView alloc] init];
-        _separator.backgroundColor = [UIColor colorWithWhite:0.6 alpha:0.3];
+        _separator.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.12];
         _separator.translatesAutoresizingMaskIntoConstraints = NO;
         _separator.layer.cornerRadius = 0.5;
         _separator.layer.masksToBounds = YES;
         [self addSubview:_separator];
         [NSLayoutConstraint activateConstraints:@[
-            [_separator.leadingAnchor constraintEqualToAnchor:self.leadingAnchor constant:10],
-            [_separator.trailingAnchor constraintEqualToAnchor:self.trailingAnchor constant:-10],
+            [_separator.leadingAnchor constraintEqualToAnchor:self.leadingAnchor constant:4],
+            [_separator.trailingAnchor constraintEqualToAnchor:self.trailingAnchor constant:-4],
             [_separator.bottomAnchor constraintEqualToAnchor:self.bottomAnchor],
             [_separator.heightAnchor constraintEqualToConstant:1],
         ]];

@@ -20,7 +20,7 @@
     if (self = [super init]) {
         UIStackView *stackView = [[UIStackView alloc] init];
         stackView.axis = UILayoutConstraintAxisVertical;
-        stackView.spacing = 2;
+        stackView.spacing = 5;
         stackView.translatesAutoresizingMaskIntoConstraints = NO;
         stackView.alignment = UIStackViewAlignmentLeading;
 
@@ -40,7 +40,7 @@
         [stackView addArrangedSubview:self.logoView];
 
         [NSLayoutConstraint activateConstraints:@[
-            [self.logoView.heightAnchor constraintEqualToConstant:40],
+            [self.logoView.heightAnchor constraintEqualToConstant:48],
             [self.logoView.widthAnchor constraintEqualToAnchor:self.logoView.heightAnchor multiplier:image.size.width / image.size.height],
         ]];
 
