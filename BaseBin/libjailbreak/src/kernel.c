@@ -211,6 +211,70 @@ int pmap_cs_allow_invalid(uint64_t pmap)
 	return 0;
 }
 
+uint64_t kauth_cred_rw(uint64_t cred)
+{
+	if (gSystemInfo.kernelStruct.ucred_rw.exists) {
+		return kread_ptr(cred + koffsetof(ucred, rw));
+	}
+	return 0;
+}
+
+void kauth_cred_ref(uint64_t ucred)
+{
+	uint64_t refcntPtr = 0;
+	if (gSystemInfo.kernelStruct.ucred_rw.exists) {
+		uint64_t ucred_rw = kauth_cred_rw(ucred);
+		refcntPtr = ucred_rw + koffsetof(ucred_rw, weak_ref);
+	}
+	else {
+		refcntPtr = ucred + koffsetof(ucred, ref);
+	}
+	if (!refcntPtr) return;
+	kaccess_mapped(refcntPtr, sizeof(uint64_t), ^(void *ptr) {
+		_Atomic(uint64_t) *uintPtr = ptr;
+		atomic_fetch_add(uintPtr, 1);
+	});
+}
+
+void kauth_cred_unref(uint64_t ucred)
+{
+	uint64_t refcntPtr = 0;
+	if (gSystemInfo.kernelStruct.ucred_rw.exists) {
+		uint64_t ucred_rw = kauth_cred_rw(ucred);
+		refcntPtr = ucred_rw + koffsetof(ucred_rw, weak_ref);
+	}
+	else {
+		refcntPtr = ucred + koffsetof(ucred, ref);
+	}
+	if (!refcntPtr) return;
+	kaccess_mapped(refcntPtr, sizeof(uint64_t), ^(void *ptr) {
+		_Atomic(uint64_t) *uintPtr = ptr;
+		atomic_fetch_sub(uintPtr, 1);
+	});
+}
+
+void kauth_cred_hold(uint64_t ucred)
+{
+	if (!gSystemInfo.kernelStruct.ucred_rw.exists) return;
+	uint64_t refcntPtr = ucred + koffsetof(ucred, ref);
+	if (!refcntPtr) return;
+	kaccess_mapped(refcntPtr, sizeof(uint64_t), ^(void *ptr) {
+		_Atomic(uint64_t) *uintPtr = ptr;
+		atomic_fetch_add(uintPtr, 1);
+	});
+}
+
+void kauth_cred_drop(uint64_t ucred)
+{
+	if (!gSystemInfo.kernelStruct.ucred_rw.exists) return;
+	uint64_t refcntPtr = ucred + koffsetof(ucred, ref);
+	if (!refcntPtr) return;
+	kaccess_mapped(refcntPtr, sizeof(uint64_t), ^(void *ptr) {
+		_Atomic(uint64_t) *uintPtr = ptr;
+		atomic_fetch_sub(uintPtr, 1);
+	});
+}
+
 int cs_allow_invalid(uint64_t proc, bool emulateFully)
 {
 	if (proc) {

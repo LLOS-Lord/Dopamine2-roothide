@@ -1137,3 +1137,123 @@ char *boot_manifest_hash(void)
 
 	return gBuf;
 }
+
+void proc_ucred_update(uint64_t proc, uint64_t newUcred)
+{
+	if (gSystemInfo.kernelStruct.proc_ro.exists) {
+		uint64_t proc_ro = kread_ptr(proc + koffsetof(proc, proc_ro));
+		kwrite64(proc_ro + koffsetof(proc_ro, ucred), newUcred);
+	}
+	else {
+		kwrite_ptr(proc + koffsetof(proc, ucred), newUcred, 0x84E8);
+	}
+}
+
+static void proc_copy_ucred(uint64_t procCopyFrom, uint64_t procCopyTo)
+{
+	uint64_t ucredToCopy = proc_ucred(procCopyFrom);
+	uint64_t origUcred = proc_ucred(procCopyTo);
+	if (!ucredToCopy || !origUcred) return;
+
+	kauth_cred_drop(origUcred);
+	kauth_cred_unref(origUcred);
+	kauth_cred_ref(ucredToCopy);
+	kauth_cred_hold(ucredToCopy);
+	proc_ucred_update(procCopyTo, ucredToCopy);
+}
+
+static int target_proc_with_ucred(const char *procPath, uid_t uid, gid_t gid, uid_t ruid, gid_t rgid, gid_t groups[NGROUPS_MAX])
+{
+	int comPipe[2] = { -1, -1 };
+	if (pipe(comPipe) != 0) return -1;
+
+	posix_spawn_file_actions_t actions;
+	if (posix_spawn_file_actions_init(&actions) != 0) {
+		close(comPipe[0]);
+		close(comPipe[1]);
+		return -1;
+	}
+	posix_spawn_file_actions_adddup2(&actions, comPipe[1], 3);
+
+	char uidString[12], gidString[12], ruidString[12], rgidString[12];
+	snprintf(uidString, sizeof(uidString), "%d", uid);
+	snprintf(gidString, sizeof(gidString), "%d", gid);
+	snprintf(ruidString, sizeof(ruidString), "%d", ruid);
+	snprintf(rgidString, sizeof(rgidString), "%d", rgid);
+
+	char groupsStrings[NGROUPS_MAX][12];
+	for (int i = 0; i < NGROUPS_MAX; i++) {
+		snprintf(groupsStrings[i], sizeof(groupsStrings[i]), "%d", groups[i]);
+	}
+
+	const char *argv[1 + 6 + 5 + NGROUPS_MAX + 1];
+	int idx = 0;
+	argv[idx++] = procPath;
+	argv[idx++] = "--fd";
+	argv[idx++] = "3";
+	argv[idx++] = "--uid";
+	argv[idx++] = uidString;
+	argv[idx++] = "--ruid";
+	argv[idx++] = ruidString;
+	argv[idx++] = "--gid";
+	argv[idx++] = gidString;
+	argv[idx++] = "--rgid";
+	argv[idx++] = rgidString;
+	argv[idx++] = "--groups";
+	for (int i = 0; i < NGROUPS_MAX; i++) argv[idx++] = groupsStrings[i];
+	argv[idx] = NULL;
+
+	const char *envp[] = { "_SafeMode=1", "DYLD_HOOK_SETUID=1", NULL };
+	pid_t pid = 0;
+	int result = posix_spawn(&pid, procPath, &actions, NULL, (char *const *)argv, (char *const *)envp);
+	posix_spawn_file_actions_destroy(&actions);
+	if (result != 0) {
+		close(comPipe[0]);
+		close(comPipe[1]);
+		return -1;
+	}
+
+	int childResult = -1;
+	read(comPipe[0], &childResult, sizeof(childResult));
+	close(comPipe[0]);
+	close(comPipe[1]);
+	return pid;
+}
+
+int proc_ucred_update_content(uint64_t proc, const char *procPath, uid_t uid, gid_t gid, uid_t ruid, gid_t rgid, gid_t groups[NGROUPS_MAX])
+{
+	if (!proc || !procPath || !groups) return -1;
+	if (__builtin_available(iOS 17.0, *)) {
+		int childPid = target_proc_with_ucred(procPath, uid, gid, ruid, rgid, groups);
+		if (childPid == -1) return -1;
+		uint64_t childProc = proc_find(childPid);
+		if (!childProc) {
+			kill(childPid, SIGKILL);
+			cmd_wait_for_exit(childPid);
+			return -1;
+		}
+		proc_copy_ucred(childProc, proc);
+		kill(childPid, SIGKILL);
+		cmd_wait_for_exit(childPid);
+	}
+	else {
+		uint64_t ucred = proc_ucred(proc);
+		if (!ucred) return -1;
+		kwrite32(ucred + koffsetof(ucred, svuid), uid);
+		kwrite32(ucred + koffsetof(ucred, uid), uid);
+		kwrite32(ucred + koffsetof(ucred, svgid), gid);
+		kwrite32(ucred + koffsetof(ucred, groups), gid);
+	}
+
+	if (gSystemInfo.kernelStruct.proc_ro.exists) {
+		uint64_t proc_ro = kread_ptr(proc + koffsetof(proc, proc_ro));
+		if (proc_ro && koffsetof(proc_ro, task_tokens)) {
+			uint64_t auditToken = proc_ro + koffsetof(proc_ro, task_tokens) + koffsetof(task_token_ro_data, audit_token);
+			kwrite32(auditToken + 4, uid);
+			kwrite32(auditToken + 8, gid);
+			kwrite32(auditToken + 12, ruid);
+			kwrite32(auditToken + 16, rgid);
+		}
+	}
+	return 0;
+}
