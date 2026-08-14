@@ -391,9 +391,13 @@ void libjailbreak_IOSurface_primitives_init(void)
 		printf("Failed to initialize IOSurface primitives, add \\\"IOSurfaceRootUserClient\\\" to the \\\"com.apple.security.exception.iokit-user-client-class\\\" dictionary of the entitlements from \\\"%s\\\" to fix this. Due to this, the kalloc, kmap and kcall primitives will not work.\\n", execPath);
 		return;
 	}
-	CFRelease(surfaceRef);
-
+		CFRelease(surfaceRef);
 	gPrimitives.kmap = IOSurface_map;
-	gPrimitives.kalloc_global = IOSurface_kalloc_global;
-	gPrimitives.kalloc_local  = IOSurface_kalloc_local;
+	// Keep the legacy iOS 16 path: DOJailbreaker will initialize the
+	// page-table allocator there. Titan is the only consumer of the
+	// IOSurface 16+ global/local allocators, and it is restricted to iOS 17.
+	if (@available(iOS 17.0, *)) {
+		gPrimitives.kalloc_global = IOSurface_kalloc_global;
+		gPrimitives.kalloc_local  = IOSurface_kalloc_local;
+	}
 }
