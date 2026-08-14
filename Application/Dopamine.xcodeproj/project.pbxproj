@@ -1574,8 +1574,6 @@
 				8C5FA8E32BDD36BF008C246F /* multicast_bytecopy */,
 				A1B2C3D4E5F678901234567C /* DarkSword */,
 				B1C2D3E4F5A678901234567C /* ClearSword */,
-				A1B2C3D4E5F678901234567B /* DarkSword */,
-				B1C2D3E4F5A678901234567B /* ClearSword */,
 			);
 		};
 /* End PBXProject section */
