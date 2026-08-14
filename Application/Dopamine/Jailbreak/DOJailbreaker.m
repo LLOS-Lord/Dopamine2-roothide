@@ -163,9 +163,11 @@ sets[idx] = NULL;
     if (!pacBypass && [DOEnvironmentManager sharedManager].isPACBypassRequired) {
         return [NSError errorWithDomain:JBErrorDomain code:JBErrorCodeFailedExploitation userInfo:@{NSLocalizedDescriptionKey:@"PAC bypass is required but we did not find any"}];
     }
-    BOOL hasManualPPLSelection = [[[DOPreferenceManager sharedManager] preferenceValueForKey:@"selectedPPLBypass"] length] > 0;
-    BOOL shouldRunPPLBypass = [DOEnvironmentManager sharedManager].isPPLBypassRequired || hasManualPPLSelection;
-    if (!pplBypass && shouldRunPPLBypass) {
+    NSString *manualPPLIdentifier = [[DOPreferenceManager sharedManager] preferenceValueForKey:@"selectedPPLBypass"];
+    BOOL hasManualPPLSelection = manualPPLIdentifier.length > 0 && ![manualPPLIdentifier isEqualToString:@"none"];
+    BOOL pplIsRequired = [DOEnvironmentManager sharedManager].isPPLBypassRequired;
+    BOOL shouldRunPPLBypass = pplBypass != nil && (pplIsRequired || hasManualPPLSelection);
+    if (!pplBypass && pplIsRequired) {
         return [NSError errorWithDomain:JBErrorDomain code:JBErrorCodeFailedExploitation userInfo:@{NSLocalizedDescriptionKey:@"PPL bypass is required but we did not find any"}];
     }
     
