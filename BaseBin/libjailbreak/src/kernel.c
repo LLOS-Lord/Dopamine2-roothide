@@ -5,6 +5,7 @@
 #include "util.h"
 #include "codesign.h"
 #include <dispatch/dispatch.h>
+#include <stdatomic.h>
 
 uint64_t proc_find(pid_t pidToFind)
 {
@@ -106,12 +107,68 @@ uint64_t pa_index(uint64_t pa)
 
 uint64_t pai_to_pvh(uint64_t pai)
 {
+	if (__builtin_available(iOS 27.0, *)) {
+		if (ksymbol(SPTMArgs) != 0) {
+			uint64_t vm_page = vm_page_for_pai(pai);
+			if (!vm_page) return 0;
+			return vm_page + koffsetof(vm_page, pv_head);
+		}
+	}
 	return kread64(ksymbol(pv_head_table)) + (pai * 8);
+}
+
+struct papt_range_compressed {
+	uint64_t startAddr;
+	uint64_t baseAddr;
+	uint32_t numPages;
+	uint32_t __pad;
+};
+
+uint64_t pa_to_sptm_root_frame(uint64_t user_root_pt)
+{
+	unsigned int idx = kread32(ksymbol_sptm(n_papt_ranges_compressed));
+	if (idx == 0) return 0;
+
+	struct papt_range_compressed ranges[idx];
+	kreadbuf(ksymbol_sptm(papt_ranges_compressed), ranges, sizeof(ranges));
+	for (unsigned int i = 0; i < idx; i++) {
+		struct papt_range_compressed *range = &ranges[i];
+		uint64_t end = range->startAddr + ((uint64_t)range->numPages << 14);
+		if (user_root_pt >= range->startAddr && user_root_pt < end) {
+			uint64_t surt = user_root_pt - range->startAddr + range->baseAddr;
+			if (__builtin_available(iOS 27.0, *)) {
+				return (surt & 0xFFFFFFFFFFFFC000ULL) |
+					(sizeof(struct papt_range_compressed) * ((user_root_pt >> 10) & 0xF)) | 0x3C00;
+			}
+			return surt + 0x40;
+		}
+	}
+	return 0;
+}
+
+uint64_t pa_to_sptm_frame(uint64_t pa)
+{
+	uint64_t table = ksymbol(libsptm_frame_table);
+	if (!table) return 0;
+	uint64_t candidate = kread64(table) + (pa_index(pa) * 16);
+	if (__builtin_available(iOS 19.0, *)) {
+		uint8_t type = kread8(candidate + koffsetof(sptm_frame, type));
+		if (__builtin_available(iOS 27.0, *)) {
+			if (type == 41) candidate = pa_to_sptm_root_frame(pa);
+		}
+		else if (__builtin_available(iOS 26.4, *)) {
+			if (type == 40) candidate = pa_to_sptm_root_frame(pa);
+		}
+		else if (type == 17 || type == 38) {
+			candidate = pa_to_sptm_root_frame(pa);
+		}
+	}
+	return candidate;
 }
 
 uint64_t pvh_ptd(uint64_t pvh)
 {
-	return ((kread64(pvh) & PVH_LIST_MASK) | PVH_HIGH_FLAGS);
+	return ((kread64(pvh) & PVH_LIST_MASK) | kconstant(PVH_HIGH_FLAGS));
 }
 
 void task_set_memory_ownership_transfer(uint64_t task, bool value)
@@ -130,24 +187,29 @@ uint64_t mac_label_get(uint64_t label, int slot)
 
 void mac_label_set(uint64_t label, int slot, uint64_t value)
 {
-	// THe inverse of the condition above, treat -1 as 0 on 15.0 - 15.1.1
+	// The inverse of the condition above, treat -1 as 0 on 15.0 - 15.1.1.
 	if (!gSystemInfo.kernelStruct.proc_ro.exists && value == -1) value = 0;
-#ifdef __arm64e__
-	if (jbinfo(usesPACBypass) && !gSystemInfo.kernelStruct.proc_ro.exists) {
+	if (host_is_arm64e() && jbinfo(usesPACBypass) && !gSystemInfo.kernelStruct.proc_ro.exists) {
 		kcall(NULL, ksymbol(mac_label_set), 3, (uint64_t[]){ label, slot, value });
 		return;
 	}
-#endif
 	kwrite64(label + ((slot + 1) * sizeof(uint64_t)), value);
 }
 
-#ifdef __arm64e__
 int pmap_cs_allow_invalid(uint64_t pmap)
 {
-	kwrite8(pmap + koffsetof(pmap, wx_allowed), true);
+	if (!host_is_arm64e()) return -1;
+	if (koffsetof(pmap, txm_address_space)) {
+		uint64_t txm_address_space = kread_ptr(pmap + koffsetof(pmap, txm_address_space));
+		if (txm_address_space) {
+			kwrite8(txm_address_space + koffsetof(TXMAddressSpace, allowsInvalidCode), true);
+		}
+	}
+	else if (koffsetof(pmap, wx_allowed)) {
+		kwrite8(pmap + koffsetof(pmap, wx_allowed), true);
+	}
 	return 0;
 }
-#endif
 
 int cs_allow_invalid(uint64_t proc, bool emulateFully)
 {
@@ -158,10 +220,8 @@ int cs_allow_invalid(uint64_t proc, bool emulateFully)
 			if (vm_map) {
 				uint64_t pmap = kread_ptr(vm_map + koffsetof(vm_map, pmap));
 				if (pmap) {
-					// For non-pmap_cs (arm64) devices, this should always be emulated.
-#ifdef __arm64e__
-					if (emulateFully) {
-#endif
+						// For non-pmap_cs (arm64) devices, this should always be emulated.
+						if (emulateFully || !host_is_arm64e()) {
 						// Fugu15 Rootful
 						//proc_csflags_clear(proc, CS_EXEC_SET_ENFORCEMENT | CS_EXEC_SET_KILL | CS_EXEC_SET_HARD | CS_REQUIRE_LV | CS_ENFORCEMENT | CS_RESTRICT | CS_KILL | CS_HARD | CS_FORCED_LV);
 						//proc_csflags_set(proc, CS_DEBUGGED | CS_INVALID_ALLOWED | CS_GET_TASK_ALLOW);
@@ -176,11 +236,9 @@ int cs_allow_invalid(uint64_t proc, bool emulateFully)
 						flags.switch_protect = false;
 						flags.cs_debugged = true;
 						kwritebuf(vm_map + koffsetof(vm_map, flags), &flags, sizeof(flags));
-#ifdef __arm64e__
-					}
-					// For pmap_cs (arm64e) devices, this is enough to get unsigned code to run
-					pmap_cs_allow_invalid(pmap);
-#endif
+						}
+						// For pmap_cs (arm64e) devices, this is enough to get unsigned code to run.
+						pmap_cs_allow_invalid(pmap);
 				}
 			}
 		}
@@ -210,22 +268,44 @@ uint64_t pmap_remove_options(uint64_t pmap, uint64_t start, uint64_t end)
 
 void pmap_remove(uint64_t pmap, uint64_t start, uint64_t end)
 {
-#ifdef __arm64e__
-	pmap_remove_options(pmap, start, end);
-#else
-    uint64_t remove_count = 0;
-    if (!pmap) {
-        return;
-    }
-    uint64_t va = start;
-    while (va < end) {
-        uint64_t l;
-        l = ((va + L2_BLOCK_SIZE) & ~L2_BLOCK_MASK);
-        if (l > end) {
-            l = end;
-        }
-        remove_count = pmap_remove_options(pmap, va, l);
-        va = remove_count;
-    }
-#endif
+	if (host_is_arm64e()) {
+		pmap_remove_options(pmap, start, end);
+		return;
+	}
+
+	uint64_t remove_count = 0;
+	if (!pmap) return;
+	uint64_t va = start;
+	while (va < end) {
+		uint64_t l = ((va + L2_BLOCK_SIZE) & ~L2_BLOCK_MASK);
+		if (l > end) l = end;
+		remove_count = pmap_remove_options(pmap, va, l);
+		va = remove_count;
+	}
+}
+
+static inline uint64_t VM_PAGE_UNPACK_PTR(uint32_t packed)
+{
+	if (packed == 0) return 0;
+	return ((uint64_t)packed << kconstant(VM_PAGE_PACKED_PTR_SHIFT)) + kconstant(VM_PAGE_PACKED_PTR_BASE);
+}
+
+uint64_t vm_page_find_canonical_radix(uint64_t pnum)
+{
+	uint32_t first_pnum = kread32(ksymbol(pmap_first_pnum));
+	uint64_t root = kread64(ksymbol(vm_pages_radix_root));
+	int depth = (int)(root & 7);
+	uint64_t node = root & ~7ULL;
+	if (pnum < first_pnum || node == 0) return 0;
+
+	uint32_t idx = (uint32_t)(pnum - first_pnum);
+	for (int level = depth; level >= 1; level--) {
+		uint32_t slot = (uint32_t)(((uint64_t)idx >> (8 * level)) & 0xFF);
+		uint32_t entry = kread32(node + (4ULL * slot));
+		if (entry == 0) return 0;
+		node = VM_PAGE_UNPACK_PTR(entry);
+	}
+
+	uint32_t leaf = kread32(node + (4ULL * (idx & 0xFF)));
+	return VM_PAGE_UNPACK_PTR(leaf);
 }

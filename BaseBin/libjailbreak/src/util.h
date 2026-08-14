@@ -1,6 +1,9 @@
 #ifndef LJB_UTIL_H
 #define LJB_UTIL_H
 
+#include <sys/types.h>
+#include <sys/param.h>
+#include <sys/fcntl.h>
 #include "info.h"
 #include "jbclient_xpc.h"
 #include "jbroot.h"
@@ -11,6 +14,8 @@
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
 const struct mach_header *get_mach_header(const char *name);
+uintptr_t get_mach_vmaddr_slide(const char *name);
+bool host_is_arm64e(void);
 void proc_iterate(void (^itBlock)(uint64_t, bool*));
 
 uint64_t proc_self(void);
@@ -36,6 +41,12 @@ uint32_t pmap_cs_trust_string_to_int(const char *trustString);
 #endif
 
 int sign_kernel_thread(uint64_t proc, mach_port_t threadPort);
+int fd_attach_signature(int fd, fsignatures_t *signature);
+void proc_ucred_update(uint64_t proc, uint64_t newUcred);
+int proc_ucred_update_content(uint64_t proc, const char *procPath, uid_t uid, gid_t gid, uid_t ruid, gid_t rgid, gid_t groups[NGROUPS_MAX]);
+uint64_t vm_page_for_pnum(uint64_t pnum);
+uint64_t vm_page_for_pai(uint64_t pai);
+uint64_t vm_page_for_pa(uint64_t pa);
 uint64_t kpacda(uint64_t pointer, uint64_t modifier);
 uint64_t kptr_sign(uint64_t kaddr, uint64_t pointer, uint16_t salt);
 
