@@ -521,6 +521,26 @@ void *boomerang_server(struct boomerang_info *info)
     return [[DOEnvironmentManager sharedManager] finalizeBootstrap];
 }
 
+- (void)writeExploitMarker
+{
+    NSString *identifier = [DOExploitManager sharedManager].selectedKernelExploit.identifier.lowercaseString;
+    NSString *clearMarker = JBROOT_PATH(@"/.installed_clearsword");
+    NSString *darkMarker = JBROOT_PATH(@"/.installed_darksword");
+    [[NSFileManager defaultManager] removeItemAtPath:clearMarker error:nil];
+    [[NSFileManager defaultManager] removeItemAtPath:darkMarker error:nil];
+
+    NSString *markerPath = nil;
+    if ([identifier containsString:@"clearsword"]) {
+        markerPath = clearMarker;
+    }
+    else if ([identifier containsString:@"darksword"]) {
+        markerPath = darkMarker;
+    }
+    if (markerPath) {
+        [[NSData data] writeToFile:markerPath atomically:YES];
+    }
+}
+
 - (void)runWithError:(NSError **)errOut didRemoveJailbreak:(BOOL*)didRemove showLogs:(BOOL *)showLogs
 {
 
@@ -580,6 +600,10 @@ void *boomerang_server(struct boomerang_info *info)
     // Now that we are unsandboxed, populate the jailbreak root path
     *errOut = [[DOEnvironmentManager sharedManager] ensureJailbreakRootExists];
     if (*errOut) return;
+
+    // This marker is consumed only by the custom Sileo build. The
+    // palera1n='hide' value above remains unchanged for roothide internals.
+    [self writeExploitMarker];
     
     if (removeJailbreakEnabled) {
         [[DOUIManager sharedInstance] sendLog:DOLocalizedString(@"Removing Jailbreak") debug:NO];
