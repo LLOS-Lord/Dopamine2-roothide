@@ -133,7 +133,12 @@ int unsandbox2(const char* dir, const char* file)
         goto failed;
     }
 
-    uint64_t dirvp = proc_fd_vnode(proc_self(), dirfd);
+	if (!ksymbol(nchashtbl) || !ksymbol(nchashmask)) {
+		JBLogError("namecache symbols are unavailable");
+		goto failed;
+	}
+
+	uint64_t dirvp = proc_fd_vnode(proc_self(), dirfd);
 	if(!dirvp) {
 		JBLogError("get dirvp failed %d,%s", errno, strerror(errno));
 		goto failed;
@@ -156,6 +161,10 @@ int unsandbox2(const char* dir, const char* file)
 
 	struct vnode parentvnode;
     uint64_t parentvp = UNSIGN_PTR((uint64_t) filevnode.v_parent);
+	if (!parentvp) {
+		JBLogError("file vnode has no parent");
+		goto failed;
+	}
 	kreadbuf(parentvp, &parentvnode, sizeof(parentvnode));
 	kwrite32(parentvp+offsetof(struct vnode, v_usecount), parentvnode.v_usecount+1);
 
@@ -170,7 +179,15 @@ int unsandbox2(const char* dir, const char* file)
 
 	struct namecache filenc={0};
 	uint64_t filencp = (uint64_t)filevnode.v_nclinks.lh_first;
+	if (!filencp) {
+		JBLogError("file vnode has no namecache link");
+		goto failed;
+	}
 	kreadbuf(filencp, &filenc, sizeof(filenc));
+	if (!filenc.nc_entry.tqe_prev || !filenc.nc_child.tqe_prev || !filenc.nc_hash.le_prev || !filenc.nc_un.nc_link.le_prev) {
+		JBLogError("file namecache has incomplete links");
+		goto failed;
+	}
     JBLogDebug("filenc=%llx vp=%llx dvp=%llx\n", filencp, filenc.nc_vp, filenc.nc_dvp);
 
 {
@@ -200,6 +217,10 @@ int unsandbox2(const char* dir, const char* file)
 	JBLogDebug("kernelslide=%llx\n", kernelslide);
 	uint64_t nchashtbl = kread64(ksymbol(nchashtbl));
 	uint64_t nchashmask = kread64(ksymbol(nchashmask));
+	if (!nchashtbl || (nchashtbl & 0x7) || !nchashmask || nchashmask > 0xFFFFF || (nchashmask & (nchashmask + 1)) != 0) {
+		JBLogError("invalid namecache table/mask: %llx/%llx", nchashtbl, nchashmask);
+		goto failed;
+	}
 	JBLogDebug("nchashtbl=%llx nchashmask=%llx\n", nchashtbl, nchashmask);
 	// for(int i=0; i<nchashmask; i++) {
 	// 	JBLogDebug("hash[%d]=%llx\n", i, kread64(nchashtbl+i*8));
@@ -229,7 +250,7 @@ int unsandbox2(const char* dir, const char* file)
 			kwrite64((uint64_t)filenc.nc_entry.tqe_next+offsetof(struct namecache, nc_entry.tqe_prev), (uint64_t)filenc.nc_entry.tqe_prev);
 		} else {
 			//(head)->tqh_last = (elm)->field.tqe_prev;
-			abort();
+			goto failed;
 		}
 		//*(elm)->field.tqe_prev = TAILQ_NEXT((elm), field);
 		kwrite64((uint64_t)filenc.nc_entry.tqe_prev, (uint64_t)filenc.nc_entry.tqe_next);
@@ -289,7 +310,7 @@ int unsandbox2(const char* dir, const char* file)
 			kwrite64((uint64_t)filenc.nc_entry.tqe_next+offsetof(struct namecache, nc_entry.tqe_prev), (uint64_t)filenc.nc_entry.tqe_prev);
 		} else {
 			//(head)->tqh_last = (elm)->field.tqe_prev;
-			abort();
+			goto failed;
 		}
 		//*(elm)->field.tqe_prev = TAILQ_NEXT((elm), field);
 		kwrite64((uint64_t)filenc.nc_entry.tqe_prev, (uint64_t)filenc.nc_entry.tqe_next);
