@@ -206,7 +206,14 @@
 		A1B2C3D4E5F6789012345687 /* DarkSword.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F678901234567A /* DarkSword.m */; };
 		B1C2D3E4F5A6789012345685 /* ClearSword.h in Headers */ = {isa = PBXBuildFile; fileRef = B1C2D3E4F5A6789012345679 /* ClearSword.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B1C2D3E4F5A6789012345686 /* ClearSword.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B1C2D3E4F5A6789012345678 /* ClearSword.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		B1C2D3E4F5A6789012345687 /* ClearSword.m in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E4F5A678901234567A /* ClearSword.m */; };
+			B1C2D3E4F5A6789012345687 /* ClearSword.m in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E4F5A678901234567A /* ClearSword.m */; };
+			C1EB00000000000000000001 /* free_thread.c in Sources */ = {isa = PBXBuildFile; fileRef = C1EA00000000000000000001 /* exploit/free_thread.c */; };
+			C1EB00000000000000000002 /* krw.c in Sources */ = {isa = PBXBuildFile; fileRef = C1EA00000000000000000002 /* exploit/krw.c */; };
+			C1EB00000000000000000003 /* phys_oob.c in Sources */ = {isa = PBXBuildFile; fileRef = C1EA00000000000000000003 /* exploit/phys_oob.c */; };
+			C1EB00000000000000000004 /* poc.c in Sources */ = {isa = PBXBuildFile; fileRef = C1EA00000000000000000004 /* exploit/poc.c */; };
+			C1EB00000000000000000005 /* socket.c in Sources */ = {isa = PBXBuildFile; fileRef = C1EA00000000000000000005 /* exploit/socket.c */; };
+			C1EB00000000000000000006 /* surface.c in Sources */ = {isa = PBXBuildFile; fileRef = C1EA00000000000000000006 /* exploit/surface.c */; };
+			C1EB00000000000000000007 /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = C1EA00000000000000000007 /* exploit/utils.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -569,7 +576,14 @@
 		A1B2C3D4E5F678901234567A /* DarkSword.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DarkSword.m; sourceTree = "<group>"; };
 		B1C2D3E4F5A6789012345678 /* ClearSword.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ClearSword.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1C2D3E4F5A6789012345679 /* ClearSword.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ClearSword.h; sourceTree = "<group>"; };
-		B1C2D3E4F5A678901234567A /* ClearSword.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClearSword.m; sourceTree = "<group>"; };
+			B1C2D3E4F5A678901234567A /* ClearSword.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClearSword.m; sourceTree = "<group>"; };
+			C1EA00000000000000000001 /* exploit/free_thread.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = exploit/free_thread.c; sourceTree = "<group>"; };
+			C1EA00000000000000000002 /* exploit/krw.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = exploit/krw.c; sourceTree = "<group>"; };
+			C1EA00000000000000000003 /* exploit/phys_oob.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = exploit/phys_oob.c; sourceTree = "<group>"; };
+			C1EA00000000000000000004 /* exploit/poc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = exploit/poc.c; sourceTree = "<group>"; };
+			C1EA00000000000000000005 /* exploit/socket.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = exploit/socket.c; sourceTree = "<group>"; };
+			C1EA00000000000000000006 /* exploit/surface.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = exploit/surface.c; sourceTree = "<group>"; };
+			C1EA00000000000000000007 /* exploit/utils.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = exploit/utils.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -652,6 +666,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8CDD08362B4F682000A32B61 /* IOSurface.framework in Frameworks */,
+				8CC139832B53E05300230143 /* IOKit.framework in Frameworks */,
+				8C4ABEB92B520E7B00B43C9B /* libjailbreak.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1207,6 +1224,13 @@
 			children = (
 				B1C2D3E4F5A6789012345679 /* ClearSword.h */,
 				B1C2D3E4F5A678901234567A /* ClearSword.m */,
+				C1EA00000000000000000001 /* exploit/free_thread.c */,
+				C1EA00000000000000000002 /* exploit/krw.c */,
+				C1EA00000000000000000003 /* exploit/phys_oob.c */,
+				C1EA00000000000000000004 /* exploit/poc.c */,
+				C1EA00000000000000000005 /* exploit/socket.c */,
+				C1EA00000000000000000006 /* exploit/surface.c */,
+				C1EA00000000000000000007 /* exploit/utils.c */,
 				B1C2D3E4F5A678901234568A /* ClearSword Info.plist */,
 			);
 			path = ClearSword;
@@ -1930,6 +1954,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				B1C2D3E4F5A6789012345687 /* ClearSword.m in Sources */,
+				C1EB00000000000000000001 /* free_thread.c in Sources */,
+				C1EB00000000000000000002 /* krw.c in Sources */,
+				C1EB00000000000000000003 /* phys_oob.c in Sources */,
+				C1EB00000000000000000004 /* poc.c in Sources */,
+				C1EB00000000000000000005 /* socket.c in Sources */,
+				C1EB00000000000000000006 /* surface.c in Sources */,
+				C1EB00000000000000000007 /* utils.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
