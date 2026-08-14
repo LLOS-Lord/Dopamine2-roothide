@@ -229,7 +229,6 @@
                     [pplBypassSpecifier setProperty:(_availablePPLBypasses.firstObject.identifier ?: @"none") forKey:@"recommendedExploitIdentifier"];
                     [specifiers addObject:pplBypassSpecifier];
                 }
-                }
             }
             
             PSSpecifier *settingsGroupSpecifier = [PSSpecifier emptyGroupSpecifier];
