@@ -643,6 +643,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8CC139832B53E05300230143 /* IOKit.framework in Frameworks */,
+				8C4ABEB92B520E7B00B43C9B /* libjailbreak.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
