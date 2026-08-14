@@ -586,6 +586,7 @@
 		A1B2C3D4E5F6789012345679 /* DarkSword.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DarkSword.h; sourceTree = "<group>"; };
 		A1B2C3D4E5F678901234567A /* DarkSword.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DarkSword.m; sourceTree = "<group>"; };
 		B1C2D3E4F5A6789012345678 /* ClearSword.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ClearSword.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3165CFCF3020A516002737DA /* Titan.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Titan.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1C2D3E4F5A6789012345679 /* ClearSword.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ClearSword.h; sourceTree = "<group>"; };
 			B1C2D3E4F5A678901234567A /* ClearSword.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClearSword.m; sourceTree = "<group>"; };
 			C1EA00000000000000000001 /* exploit/free_thread.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = exploit/free_thread.c; sourceTree = "<group>"; };
