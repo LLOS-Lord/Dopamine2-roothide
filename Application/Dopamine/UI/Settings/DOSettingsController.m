@@ -98,6 +98,9 @@
 - (NSArray *)availablePPLBypassIdentifiers
 {
     NSMutableArray *identifiers = [NSMutableArray new];
+    if (_availablePPLBypasses.count == 0) {
+        [identifiers addObject:@"none"];
+    }
     for (DOExploit *exploit in _availablePPLBypasses) {
         [identifiers addObject:exploit.identifier];
     }
@@ -107,6 +110,9 @@
 - (NSArray *)availablePPLBypassNames
 {
     NSMutableArray *names = [NSMutableArray new];
+    if (_availablePPLBypasses.count == 0) {
+        [names addObject:DOLocalizedString(@"None")];
+    }
     for (DOExploit *exploit in _availablePPLBypasses) {
         [names addObject:exploit.name];
     }
@@ -164,10 +170,11 @@
         NSSortDescriptor *prioritySortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"priority" ascending:NO];
         
         _availableKernelExploits = [[exploitManager availableExploitsForType:EXPLOIT_TYPE_KERNEL] sortedArrayUsingDescriptors:@[prioritySortDescriptor]];
-        if (envManager.isArm64e) {
-            _availablePACBypasses = [[exploitManager availableExploitsForType:EXPLOIT_TYPE_PAC] sortedArrayUsingDescriptors:@[prioritySortDescriptor]];
-            _availablePPLBypasses = [[exploitManager availableExploitsForType:EXPLOIT_TYPE_PPL] sortedArrayUsingDescriptors:@[prioritySortDescriptor]];
-        }
+        // Exploit discovery must also work before jailbreak. Do not gate the
+        // lists on the current architecture: a supported PPL flavor (for
+        // example momentarius on A12/A13) is the source of truth.
+        _availablePACBypasses = [[exploitManager availableExploitsForType:EXPLOIT_TYPE_PAC] sortedArrayUsingDescriptors:@[prioritySortDescriptor]];
+        _availablePPLBypasses = [[exploitManager availableExploitsForType:EXPLOIT_TYPE_PPL] sortedArrayUsingDescriptors:@[prioritySortDescriptor]];
         
         PSSpecifier *headerSpecifier = [PSSpecifier emptyGroupSpecifier];
         [headerSpecifier setProperty:@"DOHeaderCell" forKey:@"headerCellClass"];
@@ -190,7 +197,9 @@
                 [kernelExploitSpecifier setProperty:(_availableKernelExploits.firstObject.identifier ?: @"none") forKey:@"recommendedExploitIdentifier"];
                 [specifiers addObject:kernelExploitSpecifier];
                 
-                if (envManager.isArm64e) {
+                BOOL showPACBypass = envManager.isArm64e || _availablePACBypasses.count > 0;
+                BOOL showPPLBypass = envManager.isPPLBypassRequired || _availablePPLBypasses.count > 0;
+                if (showPACBypass) {
                     PSSpecifier *pacBypassSpecifier = [PSSpecifier preferenceSpecifierNamed:DOLocalizedString(@"PAC Bypass") target:self set:defSetter get:defGetter detail:nil cell:PSLinkListCell edit:nil];
                     [pacBypassSpecifier setProperty:@YES forKey:@"enabled"];
                     DOExploit *preferredPACBypass = exploitManager.preferredPACBypass;
@@ -206,16 +215,20 @@
                     [pacBypassSpecifier setProperty:@"selectedPACBypass" forKey:@"key"];
                     [pacBypassSpecifier setProperty:([envManager isPACBypassRequired] ? _availablePACBypasses.firstObject.identifier : @"none") forKey:@"recommendedExploitIdentifier"];
                     [specifiers addObject:pacBypassSpecifier];
-                    
+                }
+
+                if (showPPLBypass) {
                     PSSpecifier *pplBypassSpecifier = [PSSpecifier preferenceSpecifierNamed:DOLocalizedString(@"PPL Bypass") target:self set:defSetter get:defGetter detail:nil cell:PSLinkListCell edit:nil];
                     [pplBypassSpecifier setProperty:@YES forKey:@"enabled"];
-                    [pplBypassSpecifier setProperty:exploitManager.preferredPPLBypass.identifier forKey:@"default"];
+                    DOExploit *preferredPPLBypass = exploitManager.preferredPPLBypass;
+                    [pplBypassSpecifier setProperty:(preferredPPLBypass.identifier ?: @"none") forKey:@"default"];
                     pplBypassSpecifier.detailControllerClass = [DOPSExploitListItemsController class];
                     [pplBypassSpecifier setProperty:@"availablePPLBypassIdentifiers" forKey:@"valuesDataSource"];
                     [pplBypassSpecifier setProperty:@"availablePPLBypassNames" forKey:@"titlesDataSource"];
                     [pplBypassSpecifier setProperty:@"selectedPPLBypass" forKey:@"key"];
                     [pplBypassSpecifier setProperty:(_availablePPLBypasses.firstObject.identifier ?: @"none") forKey:@"recommendedExploitIdentifier"];
                     [specifiers addObject:pplBypassSpecifier];
+                }
                 }
             }
             
