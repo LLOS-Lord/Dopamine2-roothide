@@ -178,7 +178,14 @@ void jbinfo_initialize_hardcoded_offsets(void)
 	gSystemInfo.kernelStruct.pt_desc.va       = 0x18;
 	gSystemInfo.kernelStruct.pt_desc.ptd_info = koffsetof(pt_desc, va) + (kconstant(PT_INDEX_MAX) * sizeof(uint64_t));
 
+	// vm_map_links
+	gSystemInfo.kernelStruct.vm_map_links.prev = 0x0;
+	gSystemInfo.kernelStruct.vm_map_links.next = 0x8;
+	gSystemInfo.kernelStruct.vm_map_links.min  = 0x10;
+	gSystemInfo.kernelStruct.vm_map_links.max  = 0x18;
+
 	// vm_map_header
+	gSystemInfo.kernelStruct.vm_map_header.links      = 0x0;
 	gSystemInfo.kernelStruct.vm_map_header.last       = 0x0;
 	gSystemInfo.kernelStruct.vm_map_header.first      = 0x8;
 	gSystemInfo.kernelStruct.vm_map_header.min_offset = 0x10;
@@ -186,6 +193,7 @@ void jbinfo_initialize_hardcoded_offsets(void)
 	gSystemInfo.kernelStruct.vm_map_header.nentries   = 0x20;
 
 	// vm_map_entry
+	gSystemInfo.kernelStruct.vm_map_entry.links        = 0x0;
 	gSystemInfo.kernelStruct.vm_map_entry.prev          = 0x0;
 	gSystemInfo.kernelStruct.vm_map_entry.next          = 0x8;
 	gSystemInfo.kernelStruct.vm_map_entry.start         = 0x10;
@@ -587,13 +595,15 @@ void jbinfo_initialize_hardcoded_offsets(void)
 																gSystemInfo.kernelStruct.vm_map.hdr   = 0x18;
 																gSystemInfo.kernelStruct.vm_map.flags = 0xE8;
 
-																// vm_map_header
-																gSystemInfo.kernelStruct.vm_map_header.first    = 0x0;
+															// vm_map_header
+															gSystemInfo.kernelStruct.vm_map_header.links  = 0x0;
+															gSystemInfo.kernelStruct.vm_map_header.first    = 0x0;
 																gSystemInfo.kernelStruct.vm_map_header.last     = 0x8;
 																gSystemInfo.kernelStruct.vm_map_header.nentries = 0x28;
 
-																// vm_map_entry
-																gSystemInfo.kernelStruct.vm_map_entry.next =  0x0;
+															// vm_map_entry
+															gSystemInfo.kernelStruct.vm_map_entry.links = 0x0;
+															gSystemInfo.kernelStruct.vm_map_entry.next =  0x0;
 																gSystemInfo.kernelStruct.vm_map_entry.prev =  0x8;
 																gSystemInfo.kernelStruct.vm_map_entry.flags = 0x38;
 
@@ -606,8 +616,15 @@ void jbinfo_initialize_hardcoded_offsets(void)
 																	gSystemInfo.kernelStruct.vm_map.hdr   = 0x0;
 																	gSystemInfo.kernelStruct.vm_map.flags = 0xB0;
 
-																	// vm_map_entry
-																	gSystemInfo.kernelStruct.vm_map_entry.prev                 = 0x4;
+															// vm_map_links
+															gSystemInfo.kernelStruct.vm_map_links.prev = 0x4;
+															gSystemInfo.kernelStruct.vm_map_links.next = 0x8;
+															gSystemInfo.kernelStruct.vm_map_links.min  = 0x10;
+															gSystemInfo.kernelStruct.vm_map_links.max  = 0x18;
+
+															// vm_map_entry
+															gSystemInfo.kernelStruct.vm_map_entry.links              = 0x0;
+															gSystemInfo.kernelStruct.vm_map_entry.prev                 = 0x4;
 																	gSystemInfo.kernelStruct.vm_map_entry.next                 = 0x8;
 																	gSystemInfo.kernelStruct.vm_map_entry.start                = 0x10;
 																	gSystemInfo.kernelStruct.vm_map_entry.end                  = 0x18;

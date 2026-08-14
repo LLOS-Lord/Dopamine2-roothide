@@ -251,6 +251,14 @@ struct system_info {
 		} vm_map;
 
 		struct {
+			uint32_t prev;
+			uint32_t next;
+			uint32_t min;
+			uint32_t max;
+		} vm_map_links;
+
+		struct {
+			uint32_t links;
 			uint32_t first;
 			uint32_t last;
 			uint32_t min_offset;
@@ -259,6 +267,7 @@ struct system_info {
 		} vm_map_header;
 
 		struct {
+			uint32_t links;
 			uint32_t prev;
 			uint32_t next;
 			uint32_t start;
@@ -580,14 +589,21 @@ extern struct system_info gSystemInfo;
 	iterator(ctx, kernelStruct.vm_map.pmap); \
 	iterator(ctx, kernelStruct.vm_map.flags); \
 	\
-	iterator(ctx, kernelStruct.vm_map_header.first); \
-	iterator(ctx, kernelStruct.vm_map_header.last); \
+		iterator(ctx, kernelStruct.vm_map_links.prev); \
+		iterator(ctx, kernelStruct.vm_map_links.next); \
+		iterator(ctx, kernelStruct.vm_map_links.min); \
+		iterator(ctx, kernelStruct.vm_map_links.max); \
+		\
+		iterator(ctx, kernelStruct.vm_map_header.links); \
+		iterator(ctx, kernelStruct.vm_map_header.first); \
+		iterator(ctx, kernelStruct.vm_map_header.last); \
 	iterator(ctx, kernelStruct.vm_map_header.min_offset); \
 	iterator(ctx, kernelStruct.vm_map_header.max_offset); \
 	iterator(ctx, kernelStruct.vm_map_header.nentries); \
 	\
-	iterator(ctx, kernelStruct.vm_map_entry.prev); \
-	iterator(ctx, kernelStruct.vm_map_entry.next); \
+		iterator(ctx, kernelStruct.vm_map_entry.links); \
+		iterator(ctx, kernelStruct.vm_map_entry.prev); \
+		iterator(ctx, kernelStruct.vm_map_entry.next); \
 	iterator(ctx, kernelStruct.vm_map_entry.start); \
 	iterator(ctx, kernelStruct.vm_map_entry.end); \
 	iterator(ctx, kernelStruct.vm_map_entry.flags); \
