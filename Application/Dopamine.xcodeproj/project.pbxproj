@@ -1688,7 +1688,6 @@
 				"zh-TW",
 				"zh-CN",
 				th,
-				3165CFCE3020A516002737DA /* Titan */,
 			);
 			mainGroup = 8C71980C2ABF0E82003C6658;
 			packageReferences = (
@@ -1706,6 +1705,7 @@
 				8C5FA8E32BDD36BF008C246F /* multicast_bytecopy */,
 				A1B2C3D4E5F678901234567C /* DarkSword */,
 				B1C2D3E4F5A678901234567C /* ClearSword */,
+				3165CFCE3020A516002737DA /* Titan */,
 			);
 		};
 /* End PBXProject section */
