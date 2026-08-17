@@ -585,8 +585,16 @@ typedef NS_ENUM(NSInteger, JBErrorCode) {
 
 - (int)installPackage:(NSString *)packagePath
 {
+    // Clean up stale dpkg lock files from interrupted previous runs
+    // These lock files can cause dpkg to hang waiting for a non-existent process
+    unlink(jbrootPrefix(@"/var/lib/dpkg/lock").fileSystemRepresentation);
+    unlink(jbrootPrefix(@"/var/lib/dpkg/lock-frontend").fileSystemRepresentation);
+
     if (getuid() == 0) {
-        return exec_cmd_trusted(JBROOT_PATH("/usr/bin/dpkg"), "-i", packagePath.fileSystemRepresentation, NULL);
+        // Use --no-triggers to skip uikittools/uicache triggers during initial install.
+        // uicache can hang waiting for backboardd during jailbreak finalization.
+        // Triggers will be properly processed after the userspace reboot.
+        return exec_cmd_trusted(JBROOT_PATH("/usr/bin/dpkg"), "--no-triggers", "-i", packagePath.fileSystemRepresentation, NULL);
     }
     else {
         // idk why but waitpid sometimes fails and this returns -1, so we just ignore the return value
@@ -1293,6 +1301,12 @@ int getCFMajorVersion(void)
         [NSFileManager.defaultManager removeItemAtPath:@"/var/mobile/Library/SplashBoard/Snapshots/xyz.willy.Zebra" error:nil];
         [NSFileManager.defaultManager removeItemAtPath:@"/var/mobile/Library/SplashBoard/Snapshots/com.roothide.manager" error:nil];
         [NSFileManager.defaultManager removeItemAtPath:@"/var/mobile/Library/SplashBoard/Snapshots/org.coolstar.SileoStore" error:nil];
+
+        // Now configure any deferred dpkg triggers (skipped via --no-triggers above).
+        // This must happen after all packages are installed but before userspace reboot.
+        // Use --no-triggers here too to avoid uicache hanging; triggers will run
+        // naturally after the userspace reboot when SpringBoard is fully operational.
+        exec_cmd_trusted(JBROOT_PATH("/usr/bin/dpkg"), "--configure", "-a", "--no-triggers", NULL);
     }
     else
     {

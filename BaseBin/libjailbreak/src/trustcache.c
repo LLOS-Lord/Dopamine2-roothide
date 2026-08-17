@@ -68,10 +68,23 @@ int trustcache_list_insert(uint64_t tcToInsert)
 {
         if (!tcToInsert) return -1;
 
-        if (ksymbol(SPTMArgs)) {
+        // Determine SPTM/TXM status consistently
+        // On SPTM/TXM devices, both SPTMArgs and txm_trustcache_root should be resolved
+        // If SPTMArgs is found but txm_trustcache_root is not (XPF patchfinder issue),
+        // we must refuse insertion to avoid corrupting TXM-protected trustcaches
+        bool hasSPTMArgs = ksymbol(SPTMArgs) != 0;
+        bool hasTXMRoot = ksymbol_txm(txm_trustcache_root) != 0;
+
+        if (hasSPTMArgs || hasTXMRoot) {
                 // On SPTM/TXM devices, our allocations are read-only by TXM so it cannot write to the prevptr field
                 // Since TXM will only add trust caches to the start of the list, we simply add ours to the end
                 // We avoid a panic when loading a new trustcache, since we guarantee the first trustcache in the list is always writable
+
+                // Safety check: if SPTM detected but TXM root missing, XPF may have
+                // incomplete offset data. Refuse to avoid TXM panic from corrupted list.
+                if (hasSPTMArgs && !hasTXMRoot) {
+                        return -1;
+                }
 
                 __block uint64_t lastTC = 0;
                 _trustcache_list_enumerate(^(uint64_t tcKaddr, bool *stop) {
@@ -104,7 +117,10 @@ int trustcache_list_remove(uint64_t tcKaddr)
 
         uint64_t nextTc = kread64(tcKaddr + koffsetof(trustcache, nextptr));
 
-        if (ksymbol(SPTMArgs)) {
+        bool hasSPTMArgs = ksymbol(SPTMArgs) != 0;
+        bool hasTXMRoot = ksymbol_txm(txm_trustcache_root) != 0;
+
+        if (hasSPTMArgs || hasTXMRoot) {
                 // On SPTM/TXM devices, trust caches are appended to the end of the list.
                 // Removal must traverse the list using the correct nextptr offset,
                 // not the raw first word (which may be prevptr on non-SPTM builds).
