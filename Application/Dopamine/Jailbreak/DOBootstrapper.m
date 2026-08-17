@@ -1376,11 +1376,11 @@ int getCFMajorVersion(void)
         return [NSError errorWithDomain:bootstrapErrorDomain code:BootstrapErrorCodeFailedFinalising userInfo:@{NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Failed to unpack deb: %d\n", ret]}];
     }
     NSError* error=nil;
-    [[NSFileManager defaultManager] copyItemAtPath:[unpackedPath stringByAppendingPathComponent:@"/var/jb/usr/lib/libroot.dylib"] toPath:jbrootPrefix(@"/usr/lib/libroot.dylib") error:&error];
+    [[NSFileManager defaultManager] copyItemAtPath:[rootfsPrefix(unpackedPath) stringByAppendingPathComponent:@"/var/jb/usr/lib/libroot.dylib"] toPath:jbrootPrefix(@"/usr/lib/libroot.dylib") error:&error];
     if(error) {
         return error;
     }
-    if(![[NSFileManager defaultManager] removeItemAtPath:unpackedPath error:&error]) {
+    if(![[NSFileManager defaultManager] removeItemAtPath:rootfsPrefix(unpackedPath) error:&error]) {
         return error;
     }
 
