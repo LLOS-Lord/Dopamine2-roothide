@@ -21,6 +21,10 @@
 #define LIBROOT_DOPAMINE_BUNDLED_VERSION @"1.0.1"
 #define BASEBIN_LINK_BUNDLED_VERSION @"1.0.0"
 
+// Forward declarations for roothide functions defined later in this file
+NSString* jbrootPrefix(NSString *path);
+NSString* rootfsPrefix(NSString* path);
+
 static NSDictionary *gBundledPackages = @{
     @"libkrw0-dopamine" : LIBKRW_DOPAMINE_BUNDLED_VERSION,
     @"libroot-dopamine" : LIBROOT_DOPAMINE_BUNDLED_VERSION,
