@@ -7,6 +7,7 @@
 #include <mach/mach_time.h>
 #include <pthread.h>
 #include <signal.h>
+#include <errno.h>
 #include <dlfcn.h>
 #include <sys/sysctl.h>
 #include <archive.h>
