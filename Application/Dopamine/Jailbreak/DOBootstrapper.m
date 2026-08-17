@@ -1375,13 +1375,47 @@ int getCFMajorVersion(void)
     if (ret != 0) {
         return [NSError errorWithDomain:bootstrapErrorDomain code:BootstrapErrorCodeFailedFinalising userInfo:@{NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Failed to unpack deb: %d\n", ret]}];
     }
+    // libroot.deb is bundled inside Dopamine.app (a TrollStore app on the real rootfs).
+    // dpkg-deb is spawned via exec_cmd_trusted with `rootfsPrefix(...)` paths because
+    // `/rootfs` is a symlink to `/` shipped inside the roothide Procursus bootstrap
+    // tarball. The `/rootfs/...` form is needed so dpkg-deb (running with systemhook
+    // and a jbroot-relative CFFIXED_USER_HOME) can locate the *real* Dopamine.app bundle
+    // and write to the real NSTemporaryDirectory() of the app container.
+    //
+    // However, after dpkg-deb finishes, the extracted files live at the *real* filesystem
+    // path that NSTemporaryDirectory() returned (e.g. /private/var/mobile/Containers/Data/Application/<UUID>/tmp/<UUID2>),
+    // NOT under the `/rootfs/` prefix. NSFileManager copyItemAtPath: must therefore read
+    // from `unpackedPath` directly (NOT `rootfsPrefix(unpackedPath)`).
+    //
+    // Using rootfsPrefix here was the cause of the "Cannot open file 'libroot.dylib'"
+    // NSCocoaErrorDomain Code=260 failure on iOS 17/18+ after the very first jailbreak.
+    // The previous "fix" (commit f5d6c27) mistakenly wrapped unpackedPath with rootfsPrefix
+    // for the copy source, which broke the lookup on devices where `/rootfs` resolves via
+    // symlink and NSFileManager fails to follow it through the jbroot remap.
     NSError* error=nil;
-    [[NSFileManager defaultManager] copyItemAtPath:[rootfsPrefix(unpackedPath) stringByAppendingPathComponent:@"/var/jb/usr/lib/libroot.dylib"] toPath:jbrootPrefix(@"/usr/lib/libroot.dylib") error:&error];
+    NSString *librootSrcPath = [unpackedPath stringByAppendingPathComponent:@"/var/jb/usr/lib/libroot.dylib"];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:librootSrcPath]) {
+        // Fall back to rootfs-prefixed lookup in case dpkg-deb wrote through the `/rootfs`
+        // symlink on devices where chdir()+sandboxing prevents direct NSTemporaryDirectory access.
+        NSString *fallbackPath = [rootfsPrefix(unpackedPath) stringByAppendingPathComponent:@"/var/jb/usr/lib/libroot.dylib"];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:fallbackPath]) {
+            librootSrcPath = fallbackPath;
+        } else {
+            return [NSError errorWithDomain:bootstrapErrorDomain code:BootstrapErrorCodeFailedFinalising userInfo:@{NSLocalizedDescriptionKey : [NSString stringWithFormat:@"libroot.dylib not found after extracting %@ (looked at %@ and %@)", librootPath.lastPathComponent, librootSrcPath, fallbackPath]}];
+        }
+    }
+    [[NSFileManager defaultManager] copyItemAtPath:librootSrcPath toPath:jbrootPrefix(@"/usr/lib/libroot.dylib") error:&error];
     if(error) {
         return error;
     }
-    if(![[NSFileManager defaultManager] removeItemAtPath:rootfsPrefix(unpackedPath) error:&error]) {
-        return error;
+    // Remove the temporary extraction directory. Try the real path first, then fall back
+    // to the rootfs-prefixed path for the same reason as above.
+    if(![[NSFileManager defaultManager] removeItemAtPath:unpackedPath error:&error]) {
+        if(![[NSFileManager defaultManager] removeItemAtPath:rootfsPrefix(unpackedPath) error:&error]) {
+            // Non-fatal: leaving a tmp dir around is harmless; just log it.
+            NSLog(@"DOBootstrapper: failed to clean up unpacked libroot dir at %@ (%@)", unpackedPath, error.localizedDescription);
+            error = nil;
+        }
     }
 
     
