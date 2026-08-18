@@ -72,24 +72,24 @@ char* proc_get_path(pid_t pid, char buffer[PATH_MAX])
 }
 
 struct proc_uniqidentifierinfo {
-	uint8_t                 p_uuid[16];             /* UUID of the main executable */
-	uint64_t                p_uniqueid;             /* 64 bit unique identifier for process */
-	uint64_t                p_puniqueid;            /* unique identifier for process's parent */
-	int32_t                 p_idversion;            /* pid version */
-	uint32_t                p_reserve2;             /* reserved for future use */
-	uint64_t                p_reserve3;             /* reserved for future use */
-	uint64_t                p_reserve4;             /* reserved for future use */
+        uint8_t                 p_uuid[16];             /* UUID of the main executable */
+        uint64_t                p_uniqueid;             /* 64 bit unique identifier for process */
+        uint64_t                p_puniqueid;            /* unique identifier for process's parent */
+        int32_t                 p_idversion;            /* pid version */
+        uint32_t                p_reserve2;             /* reserved for future use */
+        uint64_t                p_reserve3;             /* reserved for future use */
+        uint64_t                p_reserve4;             /* reserved for future use */
 };
 #define PROC_PIDUNIQIDENTIFIERINFO      17
 #define PROC_PIDUNIQIDENTIFIERINFO_SIZE (sizeof(struct proc_uniqidentifierinfo))
 int proc_get_pidversion(pid_t pid)
 {
-	struct proc_uniqidentifierinfo uniqidinfo = {0};
-	int ret = proc_pidinfo(pid, PROC_PIDUNIQIDENTIFIERINFO, 0, &uniqidinfo, sizeof(uniqidinfo));
-	if (ret <= 0) {
+        struct proc_uniqidentifierinfo uniqidinfo = {0};
+        int ret = proc_pidinfo(pid, PROC_PIDUNIQIDENTIFIERINFO, 0, &uniqidinfo, sizeof(uniqidinfo));
+        if (ret <= 0) {
         return 0;
-	}
-	return uniqidinfo.p_idversion;
+        }
+        return uniqidinfo.p_idversion;
 }
 
 char* proc_get_identifier(pid_t pid, char buffer[255])
@@ -146,19 +146,19 @@ int proc_paused(pid_t pid, bool* paused)
 
 int unrestrict(pid_t pid, int (*callback)(pid_t), bool resume)
 {
-	while(true) {
-		bool paused = false;
-		if (proc_paused(pid, &paused) != 0) {
-			JBLogError("Failed to check if process(%d) is paused", pid);
-			return -1;
-		}
-		if(paused) {
-			//wait for process to be fully initialized (new task ipc enabling, csflags updating, etc.)
-			usleep(100*1000);
-			break;
-		}
+        while(true) {
+                bool paused = false;
+                if (proc_paused(pid, &paused) != 0) {
+                        JBLogError("Failed to check if process(%d) is paused", pid);
+                        return -1;
+                }
+                if(paused) {
+                        //wait for process to be fully initialized (new task ipc enabling, csflags updating, etc.)
+                        usleep(100*1000);
+                        break;
+                }
         usleep(10*1000);
-	}
+        }
 
     int ret = callback(pid);
     if(ret != 0) {
@@ -250,34 +250,34 @@ int roothide_config_set_spinlock_fix(bool enabled)
 
 bool string_has_prefix(const char *str, const char* prefix)
 {
-	if (!str || !prefix) {
-		return false;
-	}
+        if (!str || !prefix) {
+                return false;
+        }
 
-	size_t str_len = strlen(str);
-	size_t prefix_len = strlen(prefix);
+        size_t str_len = strlen(str);
+        size_t prefix_len = strlen(prefix);
 
-	if (str_len < prefix_len) {
-		return false;
-	}
+        if (str_len < prefix_len) {
+                return false;
+        }
 
-	return !strncmp(str, prefix, prefix_len);
+        return !strncmp(str, prefix, prefix_len);
 }
 
 bool string_has_suffix(const char* str, const char* suffix)
 {
-	if (!str || !suffix) {
-		return false;
-	}
+        if (!str || !suffix) {
+                return false;
+        }
 
-	size_t str_len = strlen(str);
-	size_t suffix_len = strlen(suffix);
+        size_t str_len = strlen(str);
+        size_t suffix_len = strlen(suffix);
 
-	if (str_len < suffix_len) {
-		return false;
-	}
+        if (str_len < suffix_len) {
+                return false;
+        }
 
-	return !strcmp(str + str_len - suffix_len, suffix);
+        return !strcmp(str + str_len - suffix_len, suffix);
 }
 
 #define APP_PATH_PREFIX "/private/var/containers/Bundle/Application/"
@@ -298,29 +298,29 @@ char* getAppUUIDPath(const char* path)
     //is normal app or jailbroken app/daemon?
     if((p2 - p1) != (sizeof("xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx")-1))
         return NULL;
-	
-	*p2 = '\0';
+        
+        *p2 = '\0';
 
-	return strdup(abspath);
+        return strdup(abspath);
 }
 
 bool isRemovableBundlePath(const char* path)
 {
     const char* uuidpath = getAppUUIDPath(path);
-	if(!uuidpath) return false;
-	free((void*)uuidpath);
-	return true;
+        if(!uuidpath) return false;
+        free((void*)uuidpath);
+        return true;
 }
 
 bool hasTrollstoreMarker(const char* path)
 {
     char* uuidpath = getAppUUIDPath(path);
-	if(!uuidpath) return false;
+        if(!uuidpath) return false;
 
-	char* markerpath=NULL;
-	asprintf(&markerpath, "%s/_TrollStore", uuidpath);
+        char* markerpath=NULL;
+        asprintf(&markerpath, "%s/_TrollStore", uuidpath);
 
-	int ret = access(markerpath, F_OK);
+        int ret = access(markerpath, F_OK);
     if(ret != 0) {
         free((void*)markerpath); markerpath = NULL;
         asprintf(&markerpath, "%s/_TrollStoreLite", uuidpath);
@@ -328,99 +328,99 @@ bool hasTrollstoreMarker(const char* path)
     }
 
     free((void*)markerpath);
-	free((void*)uuidpath);
+        free((void*)uuidpath);
 
-	return ret==0;
+        return ret==0;
 }
 
 bool hasTrollstoreLiteMarker(const char* path)
 {
     char* uuidpath = getAppUUIDPath(path);
-	if(!uuidpath) return false;
+        if(!uuidpath) return false;
 
-	char* markerpath=NULL;
-	asprintf(&markerpath, "%s/_TrollStoreLite", uuidpath);
+        char* markerpath=NULL;
+        asprintf(&markerpath, "%s/_TrollStoreLite", uuidpath);
 
-	int ret = access(markerpath, F_OK);
+        int ret = access(markerpath, F_OK);
 
     free((void*)markerpath);
-	free((void*)uuidpath);
+        free((void*)uuidpath);
 
-	return ret==0;
+        return ret==0;
 }
 
 bool isSubPathOf(const char* child, const char* parent)
 {
-	char real_child[PATH_MAX]={0};
-	char real_parent[PATH_MAX]={0};
+        char real_child[PATH_MAX]={0};
+        char real_parent[PATH_MAX]={0};
 
-	if(!realpath(child, real_child)) return false;
-	if(!realpath(parent, real_parent)) return false;
+        if(!realpath(child, real_child)) return false;
+        if(!realpath(parent, real_parent)) return false;
 
-	if(!string_has_prefix(real_child, real_parent))
-		return false;
+        if(!string_has_prefix(real_child, real_parent))
+                return false;
 
-	return real_child[strlen(real_parent)] == '/';
+        return real_child[strlen(real_parent)] == '/';
 }
 
 void ensure_jbroot_symlink(const char* filepath)
 {
-	JBLogDebug("ensure_jbroot_symlink: %s", filepath);
+        JBLogDebug("ensure_jbroot_symlink: %s", filepath);
 
-	if(access(filepath, F_OK) !=0 )
-		return;
+        if(access(filepath, F_OK) !=0 )
+                return;
 
-	char realfpath[PATH_MAX]={0};
-	assert(realpath(filepath, realfpath) != NULL);
+        char realfpath[PATH_MAX]={0};
+        assert(realpath(filepath, realfpath) != NULL);
 
-	char realdirpath[PATH_MAX+1]={0};
-	dirname_r(realfpath, realdirpath);
-	if(realdirpath[0] && realdirpath[strlen(realdirpath)-1] != '/') {
-		strlcat(realdirpath, "/", sizeof(realdirpath));
-	}
+        char realdirpath[PATH_MAX+1]={0};
+        dirname_r(realfpath, realdirpath);
+        if(realdirpath[0] && realdirpath[strlen(realdirpath)-1] != '/') {
+                strlcat(realdirpath, "/", sizeof(realdirpath));
+        }
 
-	char jbrootpath[PATH_MAX+1]={0};
-	assert(realpath(JBROOT_PATH("/"), jbrootpath) != NULL);
-	if(jbrootpath[0] && jbrootpath[strlen(jbrootpath)-1] != '/') {
-		strlcat(jbrootpath, "/", sizeof(jbrootpath));
-	}
+        char jbrootpath[PATH_MAX+1]={0};
+        assert(realpath(JBROOT_PATH("/"), jbrootpath) != NULL);
+        if(jbrootpath[0] && jbrootpath[strlen(jbrootpath)-1] != '/') {
+                strlcat(jbrootpath, "/", sizeof(jbrootpath));
+        }
 
-	if(strncmp(realdirpath, jbrootpath, strlen(jbrootpath)) != 0) {
+        if(strncmp(realdirpath, jbrootpath, strlen(jbrootpath)) != 0) {
         JBLogDebug("ensure_jbroot_symlink skip path not inside jbroot: %s", realdirpath);
-		return;
-	}
+                return;
+        }
 
-	struct stat jbrootst;
-	assert(stat(jbrootpath, &jbrootst) == 0);
-	
-	char sympath[PATH_MAX];
-	snprintf(sympath,sizeof(sympath),"%s/.jbroot", realdirpath);
+        struct stat jbrootst;
+        assert(stat(jbrootpath, &jbrootst) == 0);
+        
+        char sympath[PATH_MAX];
+        snprintf(sympath,sizeof(sympath),"%s/.jbroot", realdirpath);
 
-	struct stat symst;
-	if(lstat(sympath, &symst)==0)
-	{
-		if(S_ISLNK(symst.st_mode))
-		{
-			if(stat(sympath, &symst) == 0)
-			{
-				if(symst.st_dev==jbrootst.st_dev 
-					&& symst.st_ino==jbrootst.st_ino)
-					return;
-			}
+        struct stat symst;
+        if(lstat(sympath, &symst)==0)
+        {
+                if(S_ISLNK(symst.st_mode))
+                {
+                        if(stat(sympath, &symst) == 0)
+                        {
+                                if(symst.st_dev==jbrootst.st_dev 
+                                        && symst.st_ino==jbrootst.st_ino)
+                                        return;
+                        }
 
-			assert(unlink(sympath) == 0);
-			
-		} else {
-			//not a symlink? just let it go
-			return;
-		}
-	}
+                        assert(unlink(sympath) == 0);
+                        
+                } else {
+                        //not a symlink? just let it go
+                        return;
+                }
+        }
 
-	if(symlink(jbrootpath, sympath) ==0 ) {
-		JBLogDebug("update .jbroot @ %s\n", sympath);
-	} else {
-		JBLogError("symlink error @ %s\n", sympath);
-	}
+        if(symlink(jbrootpath, sympath) ==0 ) {
+                JBLogDebug("update .jbroot @ %s\n", sympath);
+        } else {
+                JBLogError("symlink error @ %s\n", sympath);
+        }
 }
 
 char* generate_sandbox_extensions(audit_token_t *processToken, bool writable)
@@ -450,18 +450,18 @@ char* generate_sandbox_extensions(audit_token_t *processToken, bool writable)
 }
 
 struct sysctl_oid {
-	struct sysctl_oid_list *  oid_parent;
-	SLIST_ENTRY(sysctl_oid) oid_link;
-	int             oid_number;
-	int             oid_kind;
-	void            *oid_arg1;
-	int             oid_arg2;
-	const char      *oid_name;
-	int             (*oid_handler)();
-	const char      *oid_fmt;
-	const char      *oid_descr; /* offsetof() field / long description */
-	int             oid_version;
-	int             oid_refcnt;
+        struct sysctl_oid_list *  oid_parent;
+        SLIST_ENTRY(sysctl_oid) oid_link;
+        int             oid_number;
+        int             oid_kind;
+        void            *oid_arg1;
+        int             oid_arg2;
+        const char      *oid_name;
+        int             (*oid_handler)();
+        const char      *oid_fmt;
+        const char      *oid_descr; /* offsetof() field / long description */
+        int             oid_version;
+        int             oid_refcnt;
 };
 
 void oid_remove(struct sysctl_oid_list* oid_parent, struct sysctl_oid* oid)
@@ -575,7 +575,12 @@ int randomizeAndLoadBasebinTrustcache(const char* basebinPath)
 
         cdhash_t cdhash={0};
         if(ensure_randomized_cdhash(fileURL.path.fileSystemRepresentation, cdhash) == 0) {
-            basebins_cdhashes = realloc(basebins_cdhashes, (basebins_cdhashesCount+1) * sizeof(cdhash_t));
+            cdhash_t *resized = realloc(basebins_cdhashes, (basebins_cdhashesCount+1) * sizeof(cdhash_t));
+            if (!resized) {
+                free(basebins_cdhashes);
+                return -2;
+            }
+            basebins_cdhashes = resized;
             memcpy(&basebins_cdhashes[basebins_cdhashesCount], cdhash, sizeof(cdhash_t));
             basebins_cdhashesCount++;
         }
@@ -592,7 +597,17 @@ int randomizeAndLoadBasebinTrustcache(const char* basebinPath)
         return -3;
     }
 
-    int r2 = trustcache_file_upload_with_uuid(basebinTcFile, BASEBIN_TRUSTCACHE_UUID);
+    // On SPTM/nokcall devices (iOS 17+), the legacy trustcache_file_upload_with_uuid()
+    // cannot work because TXM-protected memory is not directly writable.
+    // Use the nokcall bootstrap path for initial trustcache loading instead.
+    // For non-SPTM devices, use jb_trustcache_add_entries() which handles
+    // both legacy and nokcall paths correctly via internal routing.
+    int r2;
+    if (trustcache_nokcall_is_required()) {
+        r2 = trustcache_nokcall_bootstrap_append_entries(basebinTcFile->entries, basebinTcFile->length);
+    } else {
+        r2 = jb_trustcache_add_entries(basebinTcFile->entries, basebinTcFile->length);
+    }
     free(basebinTcFile);
     if (r2 != 0) {
         return -4;
@@ -671,17 +686,17 @@ bool otherJailbreakActived(bool postexploit)
     return false;
 }
 
-#define RB_QUICK	0x400
-#define RB_PANIC	0x800
+#define RB_QUICK        0x400
+#define RB_PANIC        0x800
 int reboot_np(int howto, const char *message);
 void launchd_panic(const char* fmt, ...)
 {
     char* reason = NULL;
 
-	va_list args;
-	va_start(args, fmt);
-	vasprintf(&reason, fmt, args);
-	va_end(args);
+        va_list args;
+        va_start(args, fmt);
+        vasprintf(&reason, fmt, args);
+        va_end(args);
 
     JBLogError("launchd panic: %s", reason);
     reboot_np(RB_QUICK | RB_PANIC, reason);
@@ -692,7 +707,7 @@ void launchd_panic(const char* fmt, ...)
 static bool exec_patch_enabled = true;
 void exec_set_patch(bool enabled)
 {
-	exec_patch_enabled = enabled;
+        exec_patch_enabled = enabled;
 }
 int exec_cmd_roothide_spawn(pid_t* pidp, const char* path, const posix_spawn_file_actions_t *fap, const posix_spawnattr_t *attrp, char *const argv[], char *const envp[])
 {
@@ -787,8 +802,16 @@ int ensure_dyld_trustcache(const char* path)
         return -1;
     }
 
-    if (trustcache_file_upload_with_uuid(dyldTCFile, DYLD_TRUSTCACHE_UUID) != 0) {
-        JBLogError("Failed to upload dyld trustcache");
+    // On SPTM/nokcall devices, use jb_trustcache_add_entries() which routes
+    // through nokcall internally. On legacy devices, use the UUID-based upload.
+    int dyldR;
+    if (trustcache_nokcall_is_required()) {
+        dyldR = jb_trustcache_add_entries(dyldTCFile->entries, dyldTCFile->length);
+    } else {
+        dyldR = trustcache_file_upload_with_uuid(dyldTCFile, DYLD_TRUSTCACHE_UUID);
+    }
+    if (dyldR != 0) {
+        JBLogError("Failed to upload dyld trustcache: %d", dyldR);
         free(dyldTCFile);
         return -1;
     }
@@ -972,7 +995,7 @@ int wait_for_exit(pid_t pid)
 {
     while (1)  
     {
-		int status=0;
+                int status=0;
         if (waitpid(pid, &status, 0) == -1) {
             if (errno == EINTR) {
                 continue;
