@@ -1,6 +1,7 @@
 #include "jbserver_global.h"
 #include <libjailbreak/jbserver_boomerang.h>
 #include <libjailbreak/trustcache_nokcall_owner.h>
+#include <libjailbreak/trustcache.h>
 #include <libjailbreak/info.h>
 #include <libjailbreak/kernel.h>
 #include <libjailbreak/primitives.h>

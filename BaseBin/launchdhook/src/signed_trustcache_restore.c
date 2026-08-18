@@ -15,10 +15,10 @@
 
 #include <libjailbreak/info.h>
 #include <libjailbreak/primitives.h>
-#include <libjailbreak/log.h>
+#include <libjailbreak/roothider.h>
 
 #define SIGNED_TRUSTCACHE_DIRECTORY \
-	"/private/preboot/cryptex1/current"
+        "/private/preboot/cryptex1/current"
 #define SIGNED_TRUSTCACHE_OS_BASENAME "os.dmg.trustcache"
 #define SIGNED_TRUSTCACHE_APP_BASENAME "app.dmg.trustcache"
 #define SIGNED_TRUSTCACHE_TYPE_BOOT_OS UINT8_C(13)
