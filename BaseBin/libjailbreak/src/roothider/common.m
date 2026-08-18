@@ -600,13 +600,14 @@ int randomizeAndLoadBasebinTrustcache(const char* basebinPath)
     // On SPTM/nokcall devices (iOS 17+), the legacy trustcache_file_upload_with_uuid()
     // cannot work because TXM-protected memory is not directly writable.
     // Use the nokcall bootstrap path for initial trustcache loading instead.
-    // For non-SPTM devices, use jb_trustcache_add_entries() which handles
-    // both legacy and nokcall paths correctly via internal routing.
+    // For non-SPTM devices (iOS 15-16), use trustcache_file_upload_with_uuid()
+    // which handles UUID-based replacement on re-jailbreak (finding existing
+    // trustcaches by UUID and replacing them without needing trustcache_list_insert).
     int r2;
     if (trustcache_nokcall_is_required()) {
         r2 = trustcache_nokcall_bootstrap_append_entries(basebinTcFile->entries, basebinTcFile->length);
     } else {
-        r2 = jb_trustcache_add_entries(basebinTcFile->entries, basebinTcFile->length);
+        r2 = trustcache_file_upload_with_uuid(basebinTcFile, BASEBIN_TRUSTCACHE_UUID);
     }
     free(basebinTcFile);
     if (r2 != 0) {
