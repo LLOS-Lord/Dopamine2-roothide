@@ -55,19 +55,23 @@ void jailbreakd_received_message(mach_port_t port)
 							// is stripped by AMFI for the platform launchd binary and launchd
 							// can't bootstrap (kernel panics with "initproc exited
 							// exit reason namespace 2 subcode 0xa").
-							bool iOS15 = false;
+							if (__builtin_available(iOS 16.0, *)) {
+								// iOS 16+: must apply the full dyld patch to the new launchd so that
+								// DYLD_INSERT_LIBRARIES=launchdhook.dylib is honored by AMFI.
+								if (roothide_patch_proc(pid) == 0) {
+									// Patched via dyld; do not SIGCONT (resume is false).
+								} else {
+									JBLogError("launchd spinlock-fix (dyld) failed: %d", pid);
+									result = proc_patch_csflags(pid);
+								}
+							}
 #ifdef __arm64e__
-							iOS15 = !__builtin_available(iOS 16.0, *);
+							else {
+								// iOS 15 arm64e: csflags-only path (frida -f compatibility)
+								result = proc_patch_csflags(pid);
+							}
 #endif
-							if (iOS15) {
-								result = proc_patch_csflags(pid);
-							}
-							else if (roothide_patch_proc(pid) == 0) {
-								// Patched via dyld; do not SIGCONT (resume is false).
-							} else {
-								JBLogError("launchd spinlock-fix (dyld) failed: %d", pid);
-								result = proc_patch_csflags(pid);
-							}
+							
 						}
 						else if(proc_fix_spinlock(pid) == 0) {
 							if(resume) kill(pid, SIGCONT);
@@ -112,29 +116,33 @@ void jailbreakd_received_message(mach_port_t port)
 							// roothide_patch_proc(pid), which will call proc_patch_dyld(pid) when
 							// dyld_patch_enabled() is true OR process_force_dyld_patch returns
 							// true for /sbin/launchd (the latter is enforced in common.m).
-							bool iOS15 = false;
-#ifdef __arm64e__
-							iOS15 = !__builtin_available(iOS 16.0, *);
-#endif
-							if (iOS15) {
-								result = proc_patch_csflags(pid);
-							}
-							else if (roothide_patch_proc(pid) == 0) {
-								// proc_patch_dyld succeeded; child is patched and will load
-								// launchdhook.dylib via DYLD_INSERT_LIBRARIES when resumed.
-								// resume is false here (we are at userspace reboot), so do NOT
-								// send SIGCONT. The kernel will resume launchd when posix_spawn
-								// returns to the OLD launchd, which will then exit itself.
-							} else {
-								JBLogError("launchd spawn patch (dyld) failed: %d", pid);
-								// Last-resort fallback to the old csflags-only behavior so we
-								// don't leave launchd suspended forever. This will likely still
-								// panic, but at least the failure mode is observable.
-								result = proc_patch_csflags(pid);
-								if (result == 0) {
-									JBLogError("falling back to csflags-only patch (may panic)");
+							if (__builtin_available(iOS 16.0, *)) {
+								// iOS 16+: must apply the full dyld patch to the new launchd so that
+								// DYLD_INSERT_LIBRARIES=launchdhook.dylib is honored by AMFI.
+								if (roothide_patch_proc(pid) == 0) {
+									// proc_patch_dyld succeeded; child is patched and will load
+									// launchdhook.dylib via DYLD_INSERT_LIBRARIES when resumed.
+									// resume is false here (we are at userspace reboot), so do NOT
+									// send SIGCONT. The kernel will resume launchd when posix_spawn
+									// returns to the OLD launchd, which will then exit itself.
+								} else {
+									JBLogError("launchd spawn patch (dyld) failed: %d", pid);
+									// Last-resort fallback to the old csflags-only behavior so we
+									// don't leave launchd suspended forever. This will likely still
+									// panic, but at least the failure mode is observable.
+									result = proc_patch_csflags(pid);
+									if (result == 0) {
+										JBLogError("falling back to csflags-only patch (may panic)");
+									}
 								}
 							}
+#ifdef __arm64e__
+							else {
+								// iOS 15 arm64e: csflags-only path (frida -f compatibility)
+								result = proc_patch_csflags(pid);
+							}
+#endif
+							
 						}
 						else if(roothide_patch_proc(pid) == 0) {
 							if(resume) kill(pid, SIGCONT);
