@@ -81,9 +81,7 @@ void directory_collect_untrusted_cdhashes_by_path(const char *directoryPath,
 int jb_trustcache_add_file(const char *filePath) {
     cdhash_t *cdhashes = NULL;
     uint32_t cdhashCount = 0;
-    int collectionStatus = file_collect_untrusted_cdhashes_by_path(filePath, &cdhashes, &cdhashCount);
-    if (collectionStatus != 0)
-        return collectionStatus;
+    file_collect_untrusted_cdhashes_by_path(filePath, &cdhashes, &cdhashCount);
 
     if (cdhashes && cdhashCount > 0) {
         int status = jb_trustcache_add_cdhashes(cdhashes, cdhashCount);
