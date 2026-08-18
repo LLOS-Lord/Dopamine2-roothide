@@ -38,9 +38,9 @@
 #define TCNK_NODE_TYPE_LAST UINT8_C(0x17)
 
 #define TCNK_APP_SOURCE_PATH \
-	"/private/preboot/cryptex1/current/app.dmg.trustcache"
+        "/private/preboot/cryptex1/current/app.dmg.trustcache"
 #define TCNK_OS_SOURCE_PATH \
-	"/private/preboot/cryptex1/current/os.dmg.trustcache"
+        "/private/preboot/cryptex1/current/os.dmg.trustcache"
 
 typedef struct {
     uint64_t next;
@@ -417,9 +417,9 @@ static int tcnk_resolve_list_slot(uint64_t *listSlotOut) {
     uint64_t runtimeSymbol = ksymbol(ppl_trust_cache_rt);
     if (runtimeSymbol) {
         /*
-		 * XPF resolves ppl_trust_cache_rt to the runtime structure itself;
-		 * its word at +0x20 owns the loadable trust-cache list slot.
-		 */
+                 * XPF resolves ppl_trust_cache_rt to the runtime structure itself;
+                 * its word at +0x20 owns the loadable trust-cache list slot.
+                 */
         int status = tcnk_runtime_candidate(runtimeSymbol, listSlotOut);
         if (status == 0)
             return 0;
@@ -430,7 +430,7 @@ static int tcnk_resolve_list_slot(uint64_t *listSlotOut) {
 }
 
 static int tcnk_resolve_list_slot_from_txm(uint64_t *listSlotOut) {
-    uint64_t sptmArgsSymbol = rlx_ksymbol(sptm_args);
+    uint64_t sptmArgsSymbol = ksymbol(SPTMArgs);
     uint64_t sptmArgs = 0;
     uint64_t debugHeader = 0;
     if (!sptmArgsSymbol) {

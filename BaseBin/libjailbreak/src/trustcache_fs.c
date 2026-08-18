@@ -9,7 +9,7 @@
 #include <string.h>
 #include "signatures.h"
 #include "trustcache.h"
-#include "log.h"
+#include "roothider/log.h"
 
 void walk_machos_in_dir(const char *dir_path, void (^macho_fat_walk)(const char *path, Fat *fat), bool recurse) {
     DIR *dir = opendir(dir_path);

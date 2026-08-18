@@ -56,5 +56,11 @@ bool jbclient_dyld_patch_enabled();
 int jbclient_set_dyld_patch(bool enabled);
 /************** roothide specfic *************/
 
+/* trustcache_nokcall IPC functions */
+#include "trustcache_structs.h"
+int jbclient_root_trustcache_append_entries(const struct trustcache_entry_v1 *entries, uint32_t entryCount);
+int jbclient_platform_trustcache_query_cdhash(const uint8_t cdhash[20], bool *foundOut);
+int jbclient_platform_trustcache_owner_probe(bool *availableOut, int *ownerStatusOut);
+
 
 #endif

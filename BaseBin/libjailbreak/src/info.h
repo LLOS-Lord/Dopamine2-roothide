@@ -401,9 +401,7 @@ struct system_info {
 
 extern struct system_info gSystemInfo;
 
-static inline bool system_info_uses_sptm(void) {
-    return ksymbol(SPTMArgs) != 0;
-}
+/* system_info_uses_sptm defined after ksymbol macro */
 
 #define KERNEL_CONSTANTS_ITERATE(ctx, iterator) \
         iterator(ctx, kernelConstant.slide); \
@@ -778,5 +776,9 @@ uint64_t get_l2_block_count(void);
 #define L2_BLOCK_SIZE get_l2_block_size()
 #define L2_BLOCK_MASK get_l2_block_mask()
 #define L2_BLOCK_COUNT get_l2_block_count()
+
+static inline bool system_info_uses_sptm(void) {
+    return ksymbol(SPTMArgs) != 0;
+}
 
 #endif
