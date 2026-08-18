@@ -597,17 +597,24 @@ int randomizeAndLoadBasebinTrustcache(const char* basebinPath)
         return -3;
     }
 
-    // On SPTM/nokcall devices (iOS 17+), the legacy trustcache_file_upload_with_uuid()
-    // cannot work because TXM-protected memory is not directly writable.
-    // Use the nokcall bootstrap path for initial trustcache loading instead.
-    // For non-SPTM devices (iOS 15-16), use trustcache_file_upload_with_uuid()
-    // which handles UUID-based replacement on re-jailbreak (finding existing
-    // trustcaches by UUID and replacing them without needing trustcache_list_insert).
+    // Always use jb_trustcache_add_entries() for basebin trustcache loading.
+    // On SPTM/nokcall devices, this routes through nokcall internally.
+    // On PPL/legacy devices (iOS 15-17 non-SPTM), this uses the jb_trustcache
+    // append path which allocates a single large 0x4000-byte buffer via
+    // _jb_trustcache_grow() instead of trustcache_file_upload() which does
+    // its own kalloc+kwritebuf. On iOS 17+ PPL devices, the kalloc primitive
+    // goes through IOSurface which allocates into kalloc_type zones. These zones
+    // have strict boundary checks — trustcache_file_upload() writes struct+file
+    // data to a kalloc_type allocation which can trigger zone-bound panics when
+    // the kernel validates that writes conform to the zone's type expectations.
+    // The jb_trustcache path avoids this by using a single pre-allocated buffer
+    // that is large enough for all entries, and only does 8-byte pointer writes
+    // for linked list manipulation.
     int r2;
     if (trustcache_nokcall_is_required()) {
         r2 = trustcache_nokcall_bootstrap_append_entries(basebinTcFile->entries, basebinTcFile->length);
     } else {
-        r2 = trustcache_file_upload_with_uuid(basebinTcFile, BASEBIN_TRUSTCACHE_UUID);
+        r2 = jb_trustcache_add_entries(basebinTcFile->entries, basebinTcFile->length);
     }
     free(basebinTcFile);
     if (r2 != 0) {
@@ -803,14 +810,14 @@ int ensure_dyld_trustcache(const char* path)
         return -1;
     }
 
-    // On SPTM/nokcall devices, use jb_trustcache_add_entries() which routes
-    // through nokcall internally. On legacy devices, use the UUID-based upload.
-    int dyldR;
-    if (trustcache_nokcall_is_required()) {
-        dyldR = jb_trustcache_add_entries(dyldTCFile->entries, dyldTCFile->length);
-    } else {
-        dyldR = trustcache_file_upload_with_uuid(dyldTCFile, DYLD_TRUSTCACHE_UUID);
-    }
+    // Always use jb_trustcache_add_entries() for dyld trustcache loading.
+    // On SPTM/nokcall devices, this routes through nokcall internally.
+    // On PPL/legacy devices, this uses the jb_trustcache append path which
+    // avoids kalloc_type zone-bound panics (see randomizeAndLoadBasebinTrustcache
+    // for detailed rationale). The UUID-based trustcache_file_upload_with_uuid()
+    // path is unsafe on iOS 17+ because kalloc_type zone boundary checks can
+    // trigger panics when writing trustcache struct+file data to a typed allocation.
+    int dyldR = jb_trustcache_add_entries(dyldTCFile->entries, dyldTCFile->length);
     if (dyldR != 0) {
         JBLogError("Failed to upload dyld trustcache: %d", dyldR);
         free(dyldTCFile);
