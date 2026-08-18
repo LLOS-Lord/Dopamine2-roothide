@@ -4,6 +4,8 @@
 #include "util.h"
 #include "translation.h"
 #include "trustcache.h"
+#include "trustcache_nokcall.h"
+#include "trustcache_fs.h"
 #include "jbclient_xpc.h"
 
 #include "roothider.h"

@@ -14,8 +14,8 @@
 
 typedef enum
 {
-	KALLOC_OPTION_GLOBAL, // Global Allocation, never manually freed
-	KALLOC_OPTION_LOCAL, // Allocation attached to this process, freed on process exit
+        KALLOC_OPTION_GLOBAL, // Global Allocation, never manually freed
+        KALLOC_OPTION_LOCAL, // Allocation attached to this process, freed on process exit
 } kalloc_options;
 
 void enumerate_pages(uint64_t start, size_t size, uint64_t pageSize, bool (^block)(uint64_t, size_t));
@@ -63,5 +63,10 @@ int kalloc(uint64_t *addr, uint64_t size);
 int kfree(uint64_t addr, uint64_t size);
 
 bool is_kcall_available(void);
+
+int kreadbuf_protected(uint64_t kaddr, void *output, size_t size);
+int kwritebuf_protected(uint64_t kaddr, const void *input, size_t size);
+int physaccess_mapped(uint64_t kaddr, uint64_t size, kernel_map_accessor accessorBlock);
+int kaccess_mapped(uint64_t kaddr, uint64_t size, kernel_map_accessor accessorBlock);
 
 #endif
