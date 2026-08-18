@@ -179,7 +179,18 @@ bool process_force_dyld_patch(const char* path, const char** argv)
 
     if(__builtin_available(iOS 16.0, *))
     {
-        if(string_has_suffix(path, "/System/Library/Frameworks/WebKit.framework/XPCServices/com.apple.WebKit.WebContent.xpc/com.apple.WebKit.WebContent")) {
+        // /sbin/launchd is spawned by launchd itself during userspace reboot.
+        // It is a platform binary, so AMFI strips DYLD_INSERT_LIBRARIES unless
+        // we apply the dyld patch (proc_patch_dyld). Without launchdhook.dylib
+        // injected, the new launchd cannot set up its bootstrap port and the
+        // kernel panics with "initproc exited -- exit reason namespace 2 subcode 0xa".
+        // Force the dyld patch for /sbin/launchd regardless of the user's
+        // dyldPatchEnabled preference, because userspace reboot is broken
+        // without it.
+        if(strcmp(path, "/sbin/launchd")==0) {
+            return true;
+        }
+        else if(string_has_suffix(path, "/System/Library/Frameworks/WebKit.framework/XPCServices/com.apple.WebKit.WebContent.xpc/com.apple.WebKit.WebContent")) {
             return true;
         }
         else if(string_has_suffix(path, "/System/Library/Frameworks/WebKit.framework/XPCServices/com.apple.WebKit.WebContent.CaptivePortal.xpc/com.apple.WebKit.WebContent.CaptivePortal")) {

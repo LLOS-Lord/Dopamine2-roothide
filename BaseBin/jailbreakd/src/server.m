@@ -49,8 +49,25 @@ void jailbreakd_received_message(mach_port_t port)
 					JBLogDebug("spinlock fix: client pid=%d, child pid=%d, child's parent pid=%d, child proc=%s", clientPid, pid, ppid, proc_get_path(pid,NULL));
 					if(ppid == clientPid) {
 						if(ppid==1 && resume==false) {
-							//`frida -f` sucks with proc_fix_spinlock on ios15
-							result = proc_patch_csflags(pid);
+							// Same rationale as JBD_MSG_SPAWN_PATCH_CHILD below:
+							// On userspace reboot, we MUST apply the full dyld patch to the
+							// new launchd, otherwise DYLD_INSERT_LIBRARIES=launchdhook.dylib
+							// is stripped by AMFI for the platform launchd binary and launchd
+							// can't bootstrap (kernel panics with "initproc exited
+							// exit reason namespace 2 subcode 0xa").
+							bool iOS15 = false;
+#ifdef __arm64e__
+							iOS15 = !__builtin_available(iOS 16.0, *);
+#endif
+							if (iOS15) {
+								result = proc_patch_csflags(pid);
+							}
+							else if (roothide_patch_proc(pid) == 0) {
+								// Patched via dyld; do not SIGCONT (resume is false).
+							} else {
+								JBLogError("launchd spinlock-fix (dyld) failed: %d", pid);
+								result = proc_patch_csflags(pid);
+							}
 						}
 						else if(proc_fix_spinlock(pid) == 0) {
 							if(resume) kill(pid, SIGCONT);
@@ -74,8 +91,50 @@ void jailbreakd_received_message(mach_port_t port)
 					JBLogDebug("spawn patch: client pid=%d, child pid=%d, child's parent pid=%d, child proc=%s", clientPid, pid, ppid, proc_get_path(pid,NULL));
 					if(ppid == clientPid) {
 						if(ppid==1 && resume==false) {
-							//`frida -f` sucks with proc_patch_dyld on ios15
-							result = proc_patch_csflags(pid);
+							// This branch is reached on userspace reboot: launchd (pid 1) is
+							// posix_spawn'ing a new /sbin/launchd, suspended, and is asking us to
+							// patch it before resume. Without a proper dyld patch here, the new
+							// launchd will load the STOCK dyld, which strips DYLD_INSERT_LIBRARIES
+							// for platform binaries, so launchdhook.dylib is never injected, the
+							// bootstrap port is never set up, and launchd calls
+							// exit_with_reason(OS_REASON_SYSTEM, 0xa) -> kernel panics with
+							// "initproc exited -- exit reason namespace 2 subcode 0xa".
+							//
+							// Historically (the comment below), `frida -f` on iOS 15 had issues
+							// with proc_patch_dyld, so the code path was forced to use
+							// proc_patch_csflags (which only sets CS_GET_TASK_ALLOW). That worked
+							// on iOS 15 because the dyld patch was applied through other means
+							// (spinlock fix + fakelib bind mount). On iOS 16+ (especially 16.7.x
+							// on A11/T8015), the dyld patch is the ONLY reliable way to make
+							// DYLD_INSERT_LIBRARIES work for the new launchd.
+							//
+							// Fix: only use the csflags-only path on iOS 15. On iOS 16+, call
+							// roothide_patch_proc(pid), which will call proc_patch_dyld(pid) when
+							// dyld_patch_enabled() is true OR process_force_dyld_patch returns
+							// true for /sbin/launchd (the latter is enforced in common.m).
+							bool iOS15 = false;
+#ifdef __arm64e__
+							iOS15 = !__builtin_available(iOS 16.0, *);
+#endif
+							if (iOS15) {
+								result = proc_patch_csflags(pid);
+							}
+							else if (roothide_patch_proc(pid) == 0) {
+								// proc_patch_dyld succeeded; child is patched and will load
+								// launchdhook.dylib via DYLD_INSERT_LIBRARIES when resumed.
+								// resume is false here (we are at userspace reboot), so do NOT
+								// send SIGCONT. The kernel will resume launchd when posix_spawn
+								// returns to the OLD launchd, which will then exit itself.
+							} else {
+								JBLogError("launchd spawn patch (dyld) failed: %d", pid);
+								// Last-resort fallback to the old csflags-only behavior so we
+								// don't leave launchd suspended forever. This will likely still
+								// panic, but at least the failure mode is observable.
+								result = proc_patch_csflags(pid);
+								if (result == 0) {
+									JBLogError("falling back to csflags-only patch (may panic)");
+								}
+							}
 						}
 						else if(roothide_patch_proc(pid) == 0) {
 							if(resume) kill(pid, SIGCONT);
