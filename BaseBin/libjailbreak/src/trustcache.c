@@ -3,9 +3,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <errno.h>
 #include "kernel.h"
 #include "info.h"
 #include "primitives.h"
+#include "trustcache_nokcall.h"
 
 void _trustcache_file_init(trustcache_file_v1 *file)
 {
@@ -256,6 +258,12 @@ uint64_t _jb_trustcache_grow(void)
 
 int jb_trustcache_add_entries(struct trustcache_entry_v1 *entries, uint32_t entryCount)
 {
+        // On SPTM/nokcall devices (iOS 17+), direct kernel writes to TXM-protected
+        // trustcache memory will cause a kernel panic. Route through nokcall instead.
+        if (trustcache_nokcall_is_required()) {
+                return trustcache_nokcall_append_entries(entries, entryCount);
+        }
+
         uint32_t remainingEntryCount = entryCount;
         while (remainingEntryCount > 0) {
                 __block uint64_t freeJbTcKaddr = 0;
@@ -293,13 +301,23 @@ int jb_trustcache_add_entries(struct trustcache_entry_v1 *entries, uint32_t entr
 
 int jb_trustcache_add_cdhashes(cdhash_t *hashes, uint32_t hashCount)
 {
-        struct trustcache_entry_v1 entries[hashCount];
-        for (int i = 0; i < hashCount; i++) {
+        if (!hashCount) return 0;
+        if (!hashes) return EINVAL;
+
+        // Use heap allocation instead of VLA to avoid stack overflow with large batches
+        struct trustcache_entry_v1 *entries = malloc(hashCount * sizeof(struct trustcache_entry_v1));
+        if (!entries) return ENOMEM;
+
+        for (uint32_t i = 0; i < hashCount; i++) {
                 memcpy(entries[i].hash, hashes[i], sizeof(cdhash_t));
-                entries[i].hash_type = 1;
+                // On SPTM/nokcall devices, hash_type must be 2 for proper TXM recognition.
+                // On PPL/legacy devices, hash_type 1 is correct.
+                entries[i].hash_type = trustcache_nokcall_is_required() ? 2 : 1;
                 entries[i].flags = 0;
         }
-        return jb_trustcache_add_entries(entries, hashCount);
+        int status = jb_trustcache_add_entries(entries, hashCount);
+        free(entries);
+        return status;
 }
 
 int jb_trustcache_add_entry(struct trustcache_entry_v1 entry)
@@ -369,6 +387,11 @@ void jb_trustcache_debug_print(FILE *f)
 
 int trustcache_file_upload(trustcache_file_v1 *tc)
 {
+        // On SPTM/nokcall devices, legacy file upload (UUID-based replacement)
+        // cannot work because TXM-protected memory is not directly writable.
+        // The nokcall append-only path should be used instead.
+        if (trustcache_nokcall_is_required()) return EOPNOTSUPP;
+
         uint64_t tcSize = ksizeof(trustcache) + sizeof(trustcache_file_v1) + (tc->length * sizeof(trustcache_entry_v1));
         if (tcSize > 0x4000) return -1;
 
@@ -439,6 +462,9 @@ int trustcache_file_upload(trustcache_file_v1 *tc)
 
 int trustcache_file_upload_with_uuid(trustcache_file_v1 *tc, uuid_t uuid)
 {
+        // On SPTM/nokcall devices, delegate to trustcache_file_upload which returns EOPNOTSUPP
+        if (trustcache_nokcall_is_required()) return EOPNOTSUPP;
+
         memcpy(tc->uuid, uuid, sizeof(uuid_t));
         return trustcache_file_upload(tc);
 }
@@ -518,6 +544,13 @@ bool trustcache_contains_cdhash(uint64_t tcKaddr, cdhash_t CDHash)
 
 bool is_cdhash_trustcached(cdhash_t CDHash)
 {
+        // On SPTM/nokcall devices, direct kernel reads may fail or return incorrect
+        // results. Route through nokcall query instead.
+        if (trustcache_nokcall_is_required()) {
+                bool found = false;
+                return (trustcache_nokcall_query_cdhash(CDHash, &found) == 0 && found);
+        }
+
         __block bool inTrustCache = false;
         _trustcache_list_enumerate(^(uint64_t tcKaddr, bool *stop) {
                 bool inThisTrustCache = trustcache_contains_cdhash(tcKaddr, CDHash);
@@ -527,4 +560,11 @@ bool is_cdhash_trustcached(cdhash_t CDHash)
                 }
         });
         return inTrustCache;
+}
+
+int trustcache_query_cdhash(cdhash_t CDHash, bool *foundOut)
+{
+        if (!foundOut) return EINVAL;
+        *foundOut = is_cdhash_trustcached(CDHash);
+        return 0;
 }
